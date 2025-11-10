@@ -64,7 +64,12 @@ export class LoggerService {
     return requestedLevelIndex >= currentLevelIndex;
   }
 
-  private formatLog(level: LogLevel, message: string, context?: LogContext, error?: Error): LogEntry {
+  private formatLog(
+    level: LogLevel,
+    message: string,
+    context?: LogContext,
+    error?: Error
+  ): LogEntry {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -143,7 +148,8 @@ export class LoggerService {
     duration: number,
     context?: LogContext
   ): void {
-    const level = statusCode >= 500 ? LogLevel.ERROR : statusCode >= 400 ? LogLevel.WARN : LogLevel.INFO;
+    const level =
+      statusCode >= 500 ? LogLevel.ERROR : statusCode >= 400 ? LogLevel.WARN : LogLevel.INFO;
 
     const message = `HTTP ${method} ${path} ${statusCode} ${duration}ms`;
 

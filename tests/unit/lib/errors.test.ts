@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DomainError,
-  NotFoundError,
-  ValidationError,
-  UnauthorizedError,
-  ConflictError,
   BusinessRuleError,
-  getHttpStatusForError,
+  ConflictError,
+  DomainError,
   formatErrorResponse,
+  getHttpStatusForError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
 } from '@/lib/errors';
 
 describe('errors', () => {

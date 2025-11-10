@@ -22,30 +22,26 @@ describe('Episode', () => {
     });
 
     it('should throw error for invalid episode number', () => {
-      expect(
-        () =>
-          new Episode('episode-1', 'participant-1', 0, 'Valid text here', false)
-      ).toThrow('Episode number must be 1, 2, or 3');
+      expect(() => new Episode('episode-1', 'participant-1', 0, 'Valid text here', false)).toThrow(
+        'Episode number must be 1, 2, or 3'
+      );
 
-      expect(
-        () =>
-          new Episode('episode-1', 'participant-1', 4, 'Valid text here', false)
-      ).toThrow('Episode number must be 1, 2, or 3');
+      expect(() => new Episode('episode-1', 'participant-1', 4, 'Valid text here', false)).toThrow(
+        'Episode number must be 1, 2, or 3'
+      );
     });
 
     it('should throw error for episode text too short', () => {
-      expect(
-        () =>
-          new Episode('episode-1', 'participant-1', 1, 'Short', false)
-      ).toThrow('Episode text must be between 10 and 500 characters');
+      expect(() => new Episode('episode-1', 'participant-1', 1, 'Short', false)).toThrow(
+        'Episode text must be between 10 and 500 characters'
+      );
     });
 
     it('should throw error for episode text too long', () => {
       const longText = 'a'.repeat(501);
-      expect(
-        () =>
-          new Episode('episode-1', 'participant-1', 1, longText, false)
-      ).toThrow('Episode text must be between 10 and 500 characters');
+      expect(() => new Episode('episode-1', 'participant-1', 1, longText, false)).toThrow(
+        'Episode text must be between 10 and 500 characters'
+      );
     });
   });
 

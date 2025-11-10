@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { POST as createSessionPOST } from '@/app/api/sessions/route';
-import { POST as joinPOST } from '@/app/api/sessions/[id]/join/route';
 import { POST as episodesPOST } from '@/app/api/episodes/route';
-import { createMockRequest, parseResponse } from './test-helpers';
+import { POST as joinPOST } from '@/app/api/sessions/[id]/join/route';
+import { POST as createSessionPOST } from '@/app/api/sessions/route';
 import { InMemoryGameSessionRepository } from '@/server/infrastructure/repositories/InMemoryGameSessionRepository';
+import { createMockRequest, parseResponse } from './test-helpers';
 
 describe('POST /api/episodes', () => {
   let testSessionId: string;
@@ -21,9 +21,13 @@ describe('POST /api/episodes', () => {
     testSessionId = sessionData.sessionId;
 
     // Join as participant
-    const joinRequest = createMockRequest('POST', `http://localhost:3000/api/sessions/${testSessionId}/join`, {
-      body: { nickname: 'Player1' },
-    });
+    const joinRequest = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/sessions/${testSessionId}/join`,
+      {
+        body: { nickname: 'Player1' },
+      }
+    );
     const joinResponse = await joinPOST(joinRequest, { params: { id: testSessionId } });
     const joinData = await parseResponse(joinResponse);
     testParticipantId = joinData.participantId;

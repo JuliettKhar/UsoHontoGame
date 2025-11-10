@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
-  validateSessionId,
-  validateNickname,
-  validateEpisodeText,
+  sanitizeInput,
   validateEpisodeSet,
+  validateEpisodeText,
+  validateNickname,
+  validateSessionId,
   validateVoteEpisodeNumber,
   validateVoteSubmission,
-  sanitizeInput,
 } from '@/lib/validators';
 
 describe('validators', () => {
@@ -268,9 +268,7 @@ describe('validators', () => {
     });
 
     it('should remove < and > characters', () => {
-      expect(sanitizeInput('<script>alert("xss")</script>')).toBe(
-        'scriptalert("xss")/script'
-      );
+      expect(sanitizeInput('<script>alert("xss")</script>')).toBe('scriptalert("xss")/script');
       expect(sanitizeInput('Hello <b>world</b>')).toBe('Hello bworld/b');
     });
 

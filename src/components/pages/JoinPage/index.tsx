@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { HostLink } from '@/components/domain/host/HostLink';
 import { useJoinPage } from './hooks/useJoinPage';
 
 export interface JoinPageProps {
@@ -28,10 +29,10 @@ export function JoinPage({ sessionId }: JoinPageProps) {
   } = useJoinPage({ sessionId });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-center mb-2">ウソホントゲーム</h1>
-        <p className="text-center text-gray-600 mb-8">2つの本当と1つの嘘を見抜こう!</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-3 sm:p-4 md:p-6">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-4 sm:p-6 md:p-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">ウソホントゲーム</h1>
+        <p className="text-sm sm:text-base text-center text-gray-600 mb-6 sm:mb-8">2つの本当と1つの嘘を見抜こう!</p>
 
         {/* Mode Toggle */}
         <div className="flex gap-2 mb-6">
@@ -112,6 +113,13 @@ export function JoinPage({ sessionId }: JoinPageProps) {
             {isLoading ? '処理中...' : mode === 'create' ? 'ゲームを作成' : 'ゲームに参加'}
           </Button>
         </div>
+
+        {/* Host Link - Only visible if user is host of the session */}
+        {mode === 'join' && joinSessionId && (
+          <div className="mt-4 text-center">
+            <HostLink sessionId={joinSessionId} />
+          </div>
+        )}
 
         {mode === 'create' && (
           <p className="text-xs text-gray-500 text-center mt-4">

@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { POST as createSessionPOST } from '@/app/api/sessions/route';
 import { POST as joinPOST } from '@/app/api/sessions/[id]/join/route';
-import { createMockRequest, parseResponse } from './test-helpers';
+import { POST as createSessionPOST } from '@/app/api/sessions/route';
 import { InMemoryGameSessionRepository } from '@/server/infrastructure/repositories/InMemoryGameSessionRepository';
+import { createMockRequest, parseResponse } from './test-helpers';
 
 describe('POST /api/sessions/[id]/join', () => {
   let testSessionId: string;
@@ -24,9 +24,13 @@ describe('POST /api/sessions/[id]/join', () => {
   });
 
   it('should allow participant to join with valid session ID and nickname', async () => {
-    const request = createMockRequest('POST', `http://localhost:3000/api/sessions/${testSessionId}/join`, {
-      body: { nickname: 'Player1' },
-    });
+    const request = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/sessions/${testSessionId}/join`,
+      {
+        body: { nickname: 'Player1' },
+      }
+    );
     const response = await joinPOST(request, { params: { id: testSessionId } });
     const data = await parseResponse(response);
 
@@ -50,15 +54,23 @@ describe('POST /api/sessions/[id]/join', () => {
 
   it('should return error for duplicate nickname in session', async () => {
     // First participant joins
-    const request1 = createMockRequest('POST', `http://localhost:3000/api/sessions/${testSessionId}/join`, {
-      body: { nickname: 'Player1' },
-    });
+    const request1 = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/sessions/${testSessionId}/join`,
+      {
+        body: { nickname: 'Player1' },
+      }
+    );
     await joinPOST(request1, { params: { id: testSessionId } });
 
     // Second participant tries to join with same nickname
-    const request2 = createMockRequest('POST', `http://localhost:3000/api/sessions/${testSessionId}/join`, {
-      body: { nickname: 'Player1' },
-    });
+    const request2 = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/sessions/${testSessionId}/join`,
+      {
+        body: { nickname: 'Player1' },
+      }
+    );
     const response = await joinPOST(request2, { params: { id: testSessionId } });
     const data = await parseResponse(response);
 
@@ -68,9 +80,13 @@ describe('POST /api/sessions/[id]/join', () => {
   });
 
   it('should validate nickname length (1-30 characters)', async () => {
-    const request = createMockRequest('POST', `http://localhost:3000/api/sessions/${testSessionId}/join`, {
-      body: { nickname: '' }, // Empty nickname
-    });
+    const request = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/sessions/${testSessionId}/join`,
+      {
+        body: { nickname: '' }, // Empty nickname
+      }
+    );
     const response = await joinPOST(request, { params: { id: testSessionId } });
     const data = await parseResponse(response);
 

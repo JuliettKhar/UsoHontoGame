@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 /**
  * E2E Test: Responsive Design
@@ -149,7 +149,7 @@ test.describe('Responsive Design Tests', () => {
 
         // Verify grid layout adapts (should use different columns based on viewport)
         const gridContainer = page.locator('.grid');
-        if (await gridContainer.count() > 0) {
+        if ((await gridContainer.count()) > 0) {
           const firstGrid = gridContainer.first();
           const className = await firstGrid.getAttribute('class');
 

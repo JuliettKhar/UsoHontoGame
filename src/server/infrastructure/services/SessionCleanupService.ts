@@ -44,8 +44,7 @@ export class SessionCleanupService {
           );
 
           // Delete associated participants
-          const participants =
-            await this.participantRepository.findBySessionId(session.id);
+          const participants = await this.participantRepository.findBySessionId(session.id);
           for (const participant of participants) {
             await this.participantRepository.delete(participant.id);
           }
@@ -64,9 +63,7 @@ export class SessionCleanupService {
       }
 
       if (deletedCount > 0) {
-        console.log(
-          `[SessionCleanup] Cleaned up ${deletedCount} old session(s)`
-        );
+        console.log(`[SessionCleanup] Cleaned up ${deletedCount} old session(s)`);
       }
     } catch (error) {
       console.error('[SessionCleanup] Error during cleanup:', error);

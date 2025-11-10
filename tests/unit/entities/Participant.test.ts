@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { Participant } from '@/server/domain/entities/Participant';
 import { Episode } from '@/server/domain/entities/Episode';
+import { Participant } from '@/server/domain/entities/Participant';
 import { ConnectionStatus, ParticipantRole } from '@/types/game';
 
 describe('Participant', () => {

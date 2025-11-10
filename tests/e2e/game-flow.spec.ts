@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * E2E Test: Complete Game Flow
@@ -92,7 +92,7 @@ test.describe('Complete Game Flow', () => {
           await startButton.click();
 
           // Handle confirmation dialog if it appears
-          hostPage.once('dialog', dialog => dialog.accept());
+          hostPage.once('dialog', (dialog) => dialog.accept());
 
           // Wait a bit for game to start
           await hostPage.waitForTimeout(2000);
@@ -123,8 +123,10 @@ test.describe('Complete Game Flow', () => {
         await hostPage.goto(resultsUrl);
 
         // Results page should load (even if game isn't complete)
-        await expect(hostPage.locator('text=Game Complete').or(hostPage.locator('text=Error'))).toBeVisible({
-          timeout: 10000
+        await expect(
+          hostPage.locator('text=Game Complete').or(hostPage.locator('text=Error'))
+        ).toBeVisible({
+          timeout: 10000,
         });
       });
 
@@ -139,7 +141,6 @@ test.describe('Complete Game Flow', () => {
         // Check participants section exists
         await expect(hostPage.locator('text=参加者一覧')).toBeVisible();
       });
-
     } finally {
       // Cleanup: Close all contexts
       await hostContext.close();
@@ -156,7 +157,7 @@ test.describe('Complete Game Flow', () => {
 
     // Should show error message (using more specific selector to avoid duplicates)
     await expect(page.locator('.text-red-600').first()).toBeVisible({
-      timeout: 2000
+      timeout: 2000,
     });
 
     // Fill in nickname and create

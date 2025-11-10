@@ -26,18 +26,28 @@ export class InMemoryGameSessionRepository implements IGameSessionRepository {
 
   /**
    * Start periodic cleanup of stale sessions
+   * Removes sessions that have been inactive for more than 24 hours
+   * Cleanup runs every 2 hours
    */
   private startCleanupInterval(): void {
     const TWO_HOURS = 2 * 60 * 60 * 1000;
-    const THREE_HOURS = 3 * 60 * 60 * 1000;
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
     setInterval(() => {
       const now = Date.now();
+      let cleanedCount = 0;
+
       for (const [id, session] of this.sessions.entries()) {
         const timeSinceLastActivity = now - session.lastActivityTimestamp.getTime();
-        if (timeSinceLastActivity > THREE_HOURS) {
+        if (timeSinceLastActivity > TWENTY_FOUR_HOURS) {
           this.sessions.delete(id);
+          cleanedCount++;
+          console.log(`[SessionCleanup] Removed expired session: ${id} (inactive for ${Math.round(timeSinceLastActivity / 1000 / 60)} minutes)`);
         }
+      }
+
+      if (cleanedCount > 0) {
+        console.log(`[SessionCleanup] Cleaned up ${cleanedCount} expired session(s). Active sessions: ${this.sessions.size}`);
       }
     }, TWO_HOURS);
   }

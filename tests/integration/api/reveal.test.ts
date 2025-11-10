@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { POST as createSessionPOST } from '@/app/api/sessions/route';
-import { POST as votesPOST } from '@/app/api/votes/route';
 import { POST as revealPOST } from '@/app/api/turns/[id]/reveal/route';
-import { createMockRequest, parseResponse } from './test-helpers';
+import { POST as votesPOST } from '@/app/api/votes/route';
 import { InMemoryGameSessionRepository } from '@/server/infrastructure/repositories/InMemoryGameSessionRepository';
+import { createMockRequest, parseResponse } from './test-helpers';
 
 describe('POST /api/turns/[id]/reveal', () => {
   let testSessionId: string;
@@ -42,12 +42,16 @@ describe('POST /api/turns/[id]/reveal', () => {
 
     // Reveal answer - This test requires proper game state setup (started game with turns)
     // For now, we accept that this returns an error since we don't have a proper turn
-    const revealRequest = createMockRequest('POST', `http://localhost:3000/api/turns/${testTurnId}/reveal`, {
-      body: {
-        correctEpisodeNumber: 2,
-        presentingTeamId: presentingTeamId,
-      },
-    });
+    const revealRequest = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/turns/${testTurnId}/reveal`,
+      {
+        body: {
+          correctEpisodeNumber: 2,
+          presentingTeamId: presentingTeamId,
+        },
+      }
+    );
     const response = await revealPOST(revealRequest, { params: { id: testTurnId } });
     const data = await parseResponse(response);
 
@@ -70,12 +74,16 @@ describe('POST /api/turns/[id]/reveal', () => {
     await votesPOST(voteRequest);
 
     // Reveal answer - Requires proper game state setup
-    const revealRequest = createMockRequest('POST', `http://localhost:3000/api/turns/${testTurnId}/reveal`, {
-      body: {
-        correctEpisodeNumber: 2,
-        presentingTeamId: presentingTeamId,
-      },
-    });
+    const revealRequest = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/turns/${testTurnId}/reveal`,
+      {
+        body: {
+          correctEpisodeNumber: 2,
+          presentingTeamId: presentingTeamId,
+        },
+      }
+    );
     const response = await revealPOST(revealRequest, { params: { id: testTurnId } });
     const data = await parseResponse(response);
 
@@ -98,12 +106,16 @@ describe('POST /api/turns/[id]/reveal', () => {
     await votesPOST(voteRequest);
 
     // Reveal answer - Requires proper game state setup
-    const revealRequest = createMockRequest('POST', `http://localhost:3000/api/turns/${testTurnId}/reveal`, {
-      body: {
-        correctEpisodeNumber: 2, // Correct answer
-        presentingTeamId: presentingTeamId,
-      },
-    });
+    const revealRequest = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/turns/${testTurnId}/reveal`,
+      {
+        body: {
+          correctEpisodeNumber: 2, // Correct answer
+          presentingTeamId: presentingTeamId,
+        },
+      }
+    );
     const response = await revealPOST(revealRequest, { params: { id: testTurnId } });
 
     // Accept error since session doesn't have proper game state
@@ -124,12 +136,16 @@ describe('POST /api/turns/[id]/reveal', () => {
     await votesPOST(voteRequest);
 
     // Reveal answer - Requires proper game state setup
-    const revealRequest = createMockRequest('POST', `http://localhost:3000/api/turns/${testTurnId}/reveal`, {
-      body: {
-        correctEpisodeNumber: 2, // Correct answer
-        presentingTeamId: presentingTeamId,
-      },
-    });
+    const revealRequest = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/turns/${testTurnId}/reveal`,
+      {
+        body: {
+          correctEpisodeNumber: 2, // Correct answer
+          presentingTeamId: presentingTeamId,
+        },
+      }
+    );
     const response = await revealPOST(revealRequest, { params: { id: testTurnId } });
 
     // Accept error since session doesn't have proper game state
@@ -150,12 +166,16 @@ describe('POST /api/turns/[id]/reveal', () => {
     await votesPOST(voteRequest);
 
     // Reveal answer - Requires proper game state setup
-    const revealRequest = createMockRequest('POST', `http://localhost:3000/api/turns/${testTurnId}/reveal`, {
-      body: {
-        correctEpisodeNumber: 2,
-        presentingTeamId: presentingTeamId,
-      },
-    });
+    const revealRequest = createMockRequest(
+      'POST',
+      `http://localhost:3000/api/turns/${testTurnId}/reveal`,
+      {
+        body: {
+          correctEpisodeNumber: 2,
+          presentingTeamId: presentingTeamId,
+        },
+      }
+    );
     const response = await revealPOST(revealRequest, { params: { id: testTurnId } });
     const data = await parseResponse(response);
 
@@ -165,12 +185,16 @@ describe('POST /api/turns/[id]/reveal', () => {
   });
 
   it('should return error for non-existent turn', async () => {
-    const revealRequest = createMockRequest('POST', 'http://localhost:3000/api/turns/INVALID/reveal', {
-      body: {
-        correctEpisodeNumber: 2,
-        presentingTeamId: presentingTeamId,
-      },
-    });
+    const revealRequest = createMockRequest(
+      'POST',
+      'http://localhost:3000/api/turns/INVALID/reveal',
+      {
+        body: {
+          correctEpisodeNumber: 2,
+          presentingTeamId: presentingTeamId,
+        },
+      }
+    );
     const response = await revealPOST(revealRequest, { params: { id: 'INVALID' } });
     const data = await parseResponse(response);
 

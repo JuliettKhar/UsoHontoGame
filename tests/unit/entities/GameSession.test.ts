@@ -108,9 +108,7 @@ describe('GameSession', () => {
 
       session.updateActivity();
 
-      expect(session.lastActivityTimestamp.getTime()).toBeGreaterThan(
-        oldTimestamp.getTime()
-      );
+      expect(session.lastActivityTimestamp.getTime()).toBeGreaterThan(oldTimestamp.getTime());
     });
   });
 
@@ -136,9 +134,7 @@ describe('GameSession', () => {
       session.transitionToPhase(SessionPhase.PRESENTATION);
 
       expect(session.phase).toBe(SessionPhase.PRESENTATION);
-      expect(session.lastActivityTimestamp.getTime()).toBeGreaterThan(
-        oldTimestamp.getTime()
-      );
+      expect(session.lastActivityTimestamp.getTime()).toBeGreaterThan(oldTimestamp.getTime());
     });
 
     it('should transition through all phases', () => {
@@ -215,9 +211,7 @@ describe('GameSession', () => {
 
       session.advanceToNextTeam();
 
-      expect(session.lastActivityTimestamp.getTime()).toBeGreaterThan(
-        oldTimestamp.getTime()
-      );
+      expect(session.lastActivityTimestamp.getTime()).toBeGreaterThan(oldTimestamp.getTime());
     });
 
     it('should advance through multiple teams', () => {

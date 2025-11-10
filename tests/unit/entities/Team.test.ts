@@ -5,14 +5,7 @@ describe('Team', () => {
   describe('constructor', () => {
     it('should create team with valid data', () => {
       const participantIds = ['participant-1', 'participant-2'];
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        participantIds,
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', participantIds, 0, 1);
 
       expect(team.id).toBe('team-1');
       expect(team.sessionId).toBe('session-1');
@@ -23,41 +16,20 @@ describe('Team', () => {
     });
 
     it('should create team with null presentation order', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Beta',
-        [],
-        0,
-        null
-      );
+      const team = new Team('team-1', 'session-1', 'Team Beta', [], 0, null);
 
       expect(team.presentationOrder).toBeNull();
     });
 
     it('should create team with empty participant list', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Gamma',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Gamma', [], 0, 1);
 
       expect(team.participantIds).toEqual([]);
       expect(team.participantIds.length).toBe(0);
     });
 
     it('should create team with initial score', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Delta',
-        [],
-        50,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Delta', [], 50, 1);
 
       expect(team.cumulativeScore).toBe(50);
     });
@@ -65,14 +37,7 @@ describe('Team', () => {
 
   describe('addPoints', () => {
     it('should add positive points to score', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 0, 1);
 
       team.addPoints(10);
 
@@ -80,14 +45,7 @@ describe('Team', () => {
     });
 
     it('should accumulate multiple point additions', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 0, 1);
 
       team.addPoints(10);
       team.addPoints(5);
@@ -97,14 +55,7 @@ describe('Team', () => {
     });
 
     it('should add points to existing score', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        50,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 50, 1);
 
       team.addPoints(10);
 
@@ -112,14 +63,7 @@ describe('Team', () => {
     });
 
     it('should handle negative points', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        50,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 50, 1);
 
       team.addPoints(-10);
 
@@ -127,14 +71,7 @@ describe('Team', () => {
     });
 
     it('should handle zero points', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        50,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 50, 1);
 
       team.addPoints(0);
 
@@ -142,14 +79,7 @@ describe('Team', () => {
     });
 
     it('should allow score to become negative', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        10,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 10, 1);
 
       team.addPoints(-20);
 
@@ -188,14 +118,7 @@ describe('Team', () => {
     });
 
     it('should return false for empty team', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 0, 1);
 
       expect(team.hasParticipant('participant-1')).toBe(false);
     });
@@ -203,14 +126,7 @@ describe('Team', () => {
 
   describe('addParticipant', () => {
     it('should add participant to empty team', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 0, 1);
 
       team.addParticipant('participant-1');
 
@@ -219,35 +135,17 @@ describe('Team', () => {
     });
 
     it('should add multiple participants', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 0, 1);
 
       team.addParticipant('participant-1');
       team.addParticipant('participant-2');
       team.addParticipant('participant-3');
 
-      expect(team.participantIds).toEqual([
-        'participant-1',
-        'participant-2',
-        'participant-3',
-      ]);
+      expect(team.participantIds).toEqual(['participant-1', 'participant-2', 'participant-3']);
     });
 
     it('should not add duplicate participant', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        ['participant-1'],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', ['participant-1'], 0, 1);
 
       team.addParticipant('participant-1');
 
@@ -256,14 +154,7 @@ describe('Team', () => {
     });
 
     it('should not add participant that already exists even after multiple attempts', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 0, 1);
 
       team.addParticipant('participant-1');
       team.addParticipant('participant-1');
@@ -285,11 +176,7 @@ describe('Team', () => {
 
       team.addParticipant('participant-3');
 
-      expect(team.participantIds).toEqual([
-        'participant-1',
-        'participant-2',
-        'participant-3',
-      ]);
+      expect(team.participantIds).toEqual(['participant-1', 'participant-2', 'participant-3']);
     });
   });
 
@@ -356,14 +243,7 @@ describe('Team', () => {
     });
 
     it('should handle removing from empty team', () => {
-      const team = new Team(
-        'team-1',
-        'session-1',
-        'Team Alpha',
-        [],
-        0,
-        1
-      );
+      const team = new Team('team-1', 'session-1', 'Team Alpha', [], 0, 1);
 
       team.removeParticipant('participant-1');
 

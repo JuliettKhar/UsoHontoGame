@@ -80,9 +80,7 @@ export function useTimer(options: UseTimerOptions): UseTimerReturn {
         const serverTimeAdjusted = serverTime + roundTripTime / 2;
         serverOffsetRef.current = serverTimeAdjusted - clientEnd;
 
-        console.log(
-          `[useTimer] Server sync complete. Offset: ${serverOffsetRef.current}ms`
-        );
+        console.log(`[useTimer] Server sync complete. Offset: ${serverOffsetRef.current}ms`);
       }
     } catch (error) {
       console.error('[useTimer] Failed to sync with server:', error);

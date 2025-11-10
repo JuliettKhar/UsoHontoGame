@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ToastContainer } from '@/components/ui/Toast';
+import { ToastProvider } from '@/contexts/ToastContext';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'ウソホントゲーム - Two Truths and a Lie',
@@ -13,7 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
+          <ToastProvider>
+            {children}
+            <ToastContainer />
+          </ToastProvider>
+        </ErrorBoundary>
+      </body>
     </html>
   );
 }

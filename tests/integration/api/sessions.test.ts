@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { POST } from '@/app/api/sessions/route';
-import { createMockRequest, parseResponse } from './test-helpers';
 import { InMemoryGameSessionRepository } from '@/server/infrastructure/repositories/InMemoryGameSessionRepository';
+import { createMockRequest, parseResponse } from './test-helpers';
 
 describe('POST /api/sessions', () => {
   beforeEach(() => {

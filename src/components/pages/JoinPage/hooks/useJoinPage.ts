@@ -15,6 +15,7 @@ export function useJoinPage({ sessionId }: UseJoinPageProps) {
   const [joinSessionId, setJoinSessionId] = useState(sessionId || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // If sessionId is provided via query param, default to 'join' mode
   const [mode, setMode] = useState<'join' | 'create'>(sessionId ? 'join' : 'create');
 
   /**

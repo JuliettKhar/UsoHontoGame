@@ -24,10 +24,7 @@ interface ErrorBoundaryState {
  *
  * Catches JavaScript errors in child component tree and displays fallback UI
  */
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
@@ -76,10 +73,7 @@ export class ErrorBoundary extends Component<
 
       // Default error UI
       return (
-        <div
-          className="flex items-center justify-center min-h-screen bg-gray-50 p-4"
-          role="alert"
-        >
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4" role="alert">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
             {/* Error Icon */}
             <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
@@ -106,8 +100,8 @@ export class ErrorBoundary extends Component<
 
             {/* Error Message */}
             <p className="text-center text-gray-600 mb-4">
-              We're sorry, but something unexpected happened. Please try
-              refreshing the page or contact support if the problem persists.
+              We&apos;re sorry, but something unexpected happened. Please try refreshing the page or
+              contact support if the problem persists.
             </p>
 
             {/* Error Details (only in development) */}
@@ -119,9 +113,7 @@ export class ErrorBoundary extends Component<
                 <div className="text-xs text-gray-600 font-mono">
                   <div className="mb-2">
                     <strong>Error:</strong>
-                    <div className="mt-1 p-2 bg-red-50 rounded">
-                      {this.state.error.message}
-                    </div>
+                    <div className="mt-1 p-2 bg-red-50 rounded">{this.state.error.message}</div>
                   </div>
                   {this.state.error.stack && (
                     <div>
@@ -155,12 +147,13 @@ export class ErrorBoundary extends Component<
 
             {/* Support Link */}
             <div className="mt-4 text-center">
-              <a
-                href="/"
+              <button
+                type="button"
+                onClick={() => window.location.href = '/'}
                 className="text-sm text-blue-600 hover:text-blue-700 underline"
               >
                 Return to Home
-              </a>
+              </button>
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import type React from 'react';
+import { useId } from 'react';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -11,7 +12,8 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
  * Pure presentational component (no logic)
  */
 export function Input({ label, error, helperText, className = '', id, ...props }: InputProps) {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const inputId = id || generatedId;
 
   return (
     <div className="w-full">
@@ -23,7 +25,7 @@ export function Input({ label, error, helperText, className = '', id, ...props }
       <input
         id={inputId}
         className={`
-          w-full h-11 px-4 rounded-md border
+          w-full h-11 px-3 sm:px-4 rounded-md border text-base
           ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}
           focus:outline-none focus:ring-2 focus:ring-offset-1
           disabled:bg-gray-100 disabled:cursor-not-allowed

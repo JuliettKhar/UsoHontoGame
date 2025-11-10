@@ -29,8 +29,7 @@ export function Timer({
   className = '',
 }: TimerProps) {
   // Calculate progress percentage
-  const progressPercentage =
-    totalSeconds > 0 ? (remainingSeconds / totalSeconds) * 100 : 0;
+  const progressPercentage = totalSeconds > 0 ? (remainingSeconds / totalSeconds) * 100 : 0;
 
   // Determine color based on remaining time
   const getTimerColor = (): string => {
@@ -77,9 +76,7 @@ export function Timer({
       </div>
 
       {/* Status Text */}
-      <div className="text-sm text-gray-500 mt-1">
-        {isActive ? 'Time Remaining' : 'Paused'}
-      </div>
+      <div className="text-sm text-gray-500 mt-1">{isActive ? 'Time Remaining' : 'Paused'}</div>
 
       {/* Progress Bar */}
       {showProgress && (
