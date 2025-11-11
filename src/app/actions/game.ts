@@ -9,9 +9,10 @@ import { redirect } from "next/navigation";
 import { CreateGame } from "@/server/application/use-cases/games/CreateGame";
 import { StartAcceptingResponses } from "@/server/application/use-cases/games/StartAcceptingResponses";
 import { CloseGame } from "@/server/application/use-cases/games/CloseGame";
+import { GetGamesByCreator } from "@/server/application/use-cases/games/GetGamesByCreator";
 import { createGameRepository } from "@/server/infrastructure/repositories";
 import { CreateGameSchema, StartAcceptingSchema } from "@/server/domain/schemas/gameSchemas";
-import type { CreateGameOutput } from "@/server/application/dto/GameDto";
+import type { CreateGameOutput, GameManagementDto } from "@/server/application/dto/GameDto";
 import {getCookie} from "@/lib/cookies";
 import {COOKIE_NAMES} from "@/lib/constants";
 
@@ -223,6 +224,54 @@ export async function closeGameAction(
 					error instanceof Error
 						? error.message
 						: "ゲームの締切に失敗しました",
+				],
+			},
+		};
+	}
+}
+
+/**
+ * Server Action: Get all games for current creator
+ * @returns List of games with management info or errors
+ */
+export async function getGamesAction(): Promise<
+	| { success: true; games: GameManagementDto[] }
+	| { success: false; errors: Record<string, string[]> }
+> {
+	try {
+		// Get session ID (creator ID)
+		const sessionId = await getCookie(COOKIE_NAMES.SESSION_ID);
+
+		if (!sessionId) {
+			return {
+				success: false,
+				errors: {
+					_form: ["セッションが見つかりません。ログインし直してください。"],
+				},
+			};
+		}
+
+		// Execute use case
+		const repository = createGameRepository();
+		const useCase = new GetGamesByCreator(repository);
+
+		const result = await useCase.execute({
+			creatorId: sessionId,
+		});
+
+		return {
+			success: true,
+			games: result.games,
+		};
+	} catch (error) {
+		console.error("Failed to get games:", error);
+		return {
+			success: false,
+			errors: {
+				_form: [
+					error instanceof Error
+						? error.message
+						: "ゲーム一覧の取得に失敗しました",
 				],
 			},
 		};

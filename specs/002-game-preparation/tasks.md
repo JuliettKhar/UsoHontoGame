@@ -224,12 +224,12 @@ This document provides a complete, dependency-ordered task list for implementing
 
 ### Presentation Layer
 
-- [ ] T070 [US4] Create getGamesAction Server Action in `src/app/actions/game.ts`
-- [ ] T071 [US4] Create GameCard component with status badge in `src/components/domain/game/GameCard.tsx`
-- [ ] T072 [US4] Create GameList component with empty state in `src/components/domain/game/GameList.tsx`
-- [ ] T073 [US4] Create game list page in `src/app/games/page.tsx`
-- [ ] T074 [US4] Create Card UI component in `src/components/ui/Card.tsx`
-- [ ] T075 [US4] Write E2E test for game list display in `tests/e2e/game-list.spec.ts`
+- [X] T070 [US4] Create getGamesAction Server Action in `src/app/actions/game.ts`
+- [X] T071 [US4] Create GameCard component with status badge in `src/components/domain/game/GameCard.tsx`
+- [X] T072 [US4] Create GameList component with empty state in `src/components/domain/game/GameList.tsx`
+- [X] T073 [US4] Create game list page in `src/app/games/page.tsx`
+- [X] T074 [US4] Create Card UI component in `src/components/ui/Card.tsx`
+- [X] T075 [US4] Write E2E test for game list display in `tests/e2e/game-list.spec.ts`
 
 **US4 Completion Criteria**:
 - ✅ All moderator's games displayed in list
