@@ -284,14 +284,14 @@ This document provides a complete, dependency-ordered task list for implementing
 
 ### Application Layer
 
-- [ ] T083 [US6] Implement DeleteGame use case with cascade in `src/server/application/use-cases/games/DeleteGame.ts`
-- [ ] T084 [US6] Write unit tests for DeleteGame in `tests/unit/use-cases/DeleteGame.test.ts`
+- [x] T083 [US6] Implement DeleteGame use case with cascade in `src/server/application/use-cases/games/DeleteGame.ts`
+- [x] T084 [US6] Write unit tests for DeleteGame in `tests/unit/use-cases/DeleteGame.test.ts`
 
 ### Presentation Layer
 
-- [ ] T085 [US6] Create deleteGameAction Server Action with confirmation in `src/app/actions/game.ts`
-- [ ] T086 [US6] Add delete button to GameCard with confirmation dialog in `src/components/domain/game/GameCard.tsx`
-- [ ] T087 [US6] Write E2E test for game deletion in `tests/e2e/game-delete.spec.ts`
+- [x] T085 [US6] Create deleteGameAction Server Action with confirmation in `src/app/actions/game.ts`
+- [x] T086 [US6] Add delete button to GameCard with confirmation dialog in `src/components/domain/game/GameCard.tsx`
+- [x] T087 [US6] Write E2E test for game deletion in `tests/e2e/game-delete.spec.ts`
 
 **US6 Completion Criteria**:
 - ✅ Game deleted when status is 準備中

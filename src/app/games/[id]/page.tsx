@@ -7,6 +7,7 @@ import { getCookie } from "@/lib/cookies";
 import { COOKIE_NAMES } from "@/lib/constants";
 import { getGameDetailAction } from "@/app/actions/game";
 import { GameForm } from "@/components/domain/game/GameForm";
+import { DeleteGameButton } from "@/components/domain/game/DeleteGameButton";
 
 interface GameDetailPageProps {
 	params: Promise<{ id: string }>;
@@ -132,6 +133,17 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
 					/>
 				</div>
 			)}
+
+			{/* Delete button */}
+			<div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+				<h2 className="mb-4 text-xl font-semibold text-gray-900">
+					危険な操作
+				</h2>
+				<p className="mb-4 text-sm text-gray-600">
+					ゲームを削除すると、関連するプレゼンターとエピソードもすべて削除されます。この操作は取り消せません。
+				</p>
+				<DeleteGameButton gameId={game.id} gameStatus={game.status} />
+			</div>
 		</div>
 	);
 }

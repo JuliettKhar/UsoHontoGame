@@ -11,8 +11,9 @@ import { StartAcceptingResponses } from "@/server/application/use-cases/games/St
 import { CloseGame } from "@/server/application/use-cases/games/CloseGame";
 import { GetGamesByCreator } from "@/server/application/use-cases/games/GetGamesByCreator";
 import { UpdateGameSettings } from "@/server/application/use-cases/games/UpdateGameSettings";
+import { DeleteGame } from "@/server/application/use-cases/games/DeleteGame";
 import { createGameRepository } from "@/server/infrastructure/repositories";
-import { CreateGameSchema, StartAcceptingSchema, UpdateGameSchema } from "@/server/domain/schemas/gameSchemas";
+import { CreateGameSchema, StartAcceptingSchema, UpdateGameSchema, DeleteGameSchema } from "@/server/domain/schemas/gameSchemas";
 import type { CreateGameOutput, GameManagementDto } from "@/server/application/dto/GameDto";
 import type { GameDetailDto } from "@/server/application/dto/GameDetailDto";
 import {getCookie} from "@/lib/cookies";
@@ -435,6 +436,70 @@ export async function updateGameAction(
 					error instanceof Error
 						? error.message
 						: "ゲームの更新に失敗しました",
+				],
+			},
+		};
+	}
+}
+
+/**
+ * Server Action: Delete game
+ * Deletes a game with authorization check
+ * @param formData Form data with gameId
+ * @returns Success status or validation errors
+ */
+export async function deleteGameAction(
+	formData: FormData,
+): Promise<
+	| { success: true }
+	| { success: false; errors: Record<string, string[]> }
+> {
+	try {
+		// Extract and validate form data
+		const rawData = {
+			gameId: formData.get("gameId") as string,
+		};
+
+		const validationResult = DeleteGameSchema.safeParse(rawData);
+
+		if (!validationResult.success) {
+			return {
+				success: false,
+				errors: validationResult.error.flatten().fieldErrors,
+			};
+		}
+
+		// Get session ID (for authorization)
+		const sessionId = await getCookie(COOKIE_NAMES.SESSION_ID);
+
+		if (!sessionId) {
+			return {
+				success: false,
+				errors: {
+					_form: ["セッションが見つかりません。ログインし直してください。"],
+				},
+			};
+		}
+
+		// Execute DeleteGame use case
+		const repository = createGameRepository();
+		const useCase = new DeleteGame(repository);
+
+		await useCase.execute({
+			gameId: validationResult.data.gameId,
+			requesterId: sessionId,
+		});
+
+		return { success: true };
+	} catch (error) {
+		console.error("Failed to delete game:", error);
+		return {
+			success: false,
+			errors: {
+				_form: [
+					error instanceof Error
+						? error.message
+						: "ゲームの削除に失敗しました",
 				],
 			},
 		};
