@@ -94,9 +94,9 @@ export function useGameForm({
 					if (result.success) {
 						setCreatedGame(result.game);
 						setIsSuccess(true);
-						// Redirect to TOP page after short delay
+						// Redirect to game list after short delay
 						setTimeout(() => {
-							router.push("/top");
+							router.push("/games");
 						}, 1500);
 					} else {
 						setErrors(result.errors);

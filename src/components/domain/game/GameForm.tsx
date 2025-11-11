@@ -49,7 +49,7 @@ export function GameForm({
 					<p className="text-green-800">
 						{isEditMode
 							? "ゲーム設定を更新しました！"
-							: "ゲームを作成しました！TOPページにリダイレクトしています..."}
+							: "ゲームを作成しました！ゲーム一覧にリダイレクトしています..."}
 					</p>
 				</div>
 			)}
