@@ -2,13 +2,23 @@
 
 // useGameForm Hook
 // Feature: 002-game-preparation
-// Custom hook for game creation form with Zod validation
+// Custom hook for game creation/editing form with Zod validation
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CreateGameSchema } from "@/server/domain/schemas/gameSchemas";
-import { createGameAction } from "@/app/actions/game";
+import {
+	CreateGameSchema,
+	UpdateGameSchema,
+} from "@/server/domain/schemas/gameSchemas";
+import { createGameAction, updateGameAction } from "@/app/actions/game";
 import type { CreateGameOutput } from "@/server/application/dto/GameDto";
+
+interface UseGameFormParams {
+	/** Form mode: 'create' or 'edit' */
+	mode?: "create" | "edit";
+	/** Game ID (required for edit mode) */
+	gameId?: string;
+}
 
 interface UseGameFormReturn {
 	/** Form submission handler */
@@ -17,18 +27,22 @@ interface UseGameFormReturn {
 	isSubmitting: boolean;
 	/** Validation errors by field */
 	errors: Record<string, string[]>;
-	/** Created game data on success */
+	/** Created game data on success (create mode only) */
 	createdGame: CreateGameOutput | null;
-	/** Whether creation was successful */
+	/** Whether operation was successful */
 	isSuccess: boolean;
 }
 
 /**
- * Custom hook for game creation form
+ * Custom hook for game creation/editing form
  * Handles form validation, submission, and error display
+ * @param params Form parameters (mode, gameId)
  * @returns Form state and handlers
  */
-export function useGameForm(): UseGameFormReturn {
+export function useGameForm({
+	mode = "create",
+	gameId,
+}: UseGameFormParams = {}): UseGameFormReturn {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -45,31 +59,61 @@ export function useGameForm(): UseGameFormReturn {
 		const formData = new FormData(e.currentTarget);
 
 		// Client-side validation with Zod
-		const rawData = {
-			playerLimit: Number(formData.get("playerLimit")),
-		};
+		if (mode === "create") {
+			const rawData = {
+				playerLimit: Number(formData.get("playerLimit")),
+			};
 
-		const validationResult = CreateGameSchema.safeParse(rawData);
+			const validationResult = CreateGameSchema.safeParse(rawData);
 
-		if (!validationResult.success) {
-			setErrors(validationResult.error.flatten().fieldErrors);
-			return;
+			if (!validationResult.success) {
+				setErrors(validationResult.error.flatten().fieldErrors);
+				return;
+			}
+		} else {
+			// Edit mode validation
+			const rawData = {
+				gameId: formData.get("gameId") as string,
+				playerLimit: Number(formData.get("playerLimit")),
+			};
+
+			const validationResult = UpdateGameSchema.safeParse(rawData);
+
+			if (!validationResult.success) {
+				setErrors(validationResult.error.flatten().fieldErrors);
+				return;
+			}
 		}
 
 		// Server action call with transition
 		startTransition(async () => {
 			try {
-				const result = await createGameAction(formData);
+				if (mode === "create") {
+					const result = await createGameAction(formData);
 
-				if (result.success) {
-					setCreatedGame(result.game);
-					setIsSuccess(true);
-					// Redirect to TOP page after short delay
-					setTimeout(() => {
-						router.push("/top");
-					}, 1500);
+					if (result.success) {
+						setCreatedGame(result.game);
+						setIsSuccess(true);
+						// Redirect to TOP page after short delay
+						setTimeout(() => {
+							router.push("/top");
+						}, 1500);
+					} else {
+						setErrors(result.errors);
+					}
 				} else {
-					setErrors(result.errors);
+					// Edit mode
+					const result = await updateGameAction(formData);
+
+					if (result.success) {
+						setIsSuccess(true);
+						// Refresh the page to show updated data
+						setTimeout(() => {
+							router.refresh();
+						}, 1000);
+					} else {
+						setErrors(result.errors);
+					}
 				}
 			} catch (error) {
 				console.error("Form submission error:", error);

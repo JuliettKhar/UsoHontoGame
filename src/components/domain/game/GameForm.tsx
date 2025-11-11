@@ -2,21 +2,44 @@
 
 // GameForm Component
 // Feature: 002-game-preparation
-// Form for creating new games with player limit validation
+// Form for creating/editing games with player limit validation
 
 import { useGameForm } from "@/hooks/useGameForm";
 
+interface GameFormProps {
+	/** Form mode: 'create' or 'edit' */
+	mode?: "create" | "edit";
+	/** Game ID (required for edit mode) */
+	gameId?: string;
+	/** Initial player limit value (for edit mode) */
+	initialPlayerLimit?: number;
+	/** Current number of players (for edit mode validation hint) */
+	currentPlayers?: number;
+}
+
 /**
  * GameForm Component
- * Displays form for creating new games with player limit input
+ * Displays form for creating/editing games with player limit input
  * Handles validation, submission, and error display
  */
-export function GameForm() {
-	const { handleSubmit, isSubmitting, errors, isSuccess } = useGameForm();
+export function GameForm({
+	mode = "create",
+	gameId,
+	initialPlayerLimit = 10,
+	currentPlayers = 0,
+}: GameFormProps) {
+	const { handleSubmit, isSubmitting, errors, isSuccess } = useGameForm({
+		mode,
+		gameId,
+	});
+
+	const isEditMode = mode === "edit";
 
 	return (
-		<div className="max-w-md mx-auto p-6">
-			<h1 className="text-2xl font-bold mb-6">新しいゲームを作成</h1>
+		<div className={isEditMode ? "" : "max-w-md mx-auto p-6"}>
+			{!isEditMode && (
+				<h1 className="text-2xl font-bold mb-6">新しいゲームを作成</h1>
+			)}
 
 			{isSuccess && (
 				<div
@@ -24,12 +47,19 @@ export function GameForm() {
 					role="alert"
 				>
 					<p className="text-green-800">
-						ゲームを作成しました！TOPページにリダイレクトしています...
+						{isEditMode
+							? "ゲーム設定を更新しました！"
+							: "ゲームを作成しました！TOPページにリダイレクトしています..."}
 					</p>
 				</div>
 			)}
 
 			<form onSubmit={handleSubmit} className="space-y-6">
+				{/* Hidden gameId field for edit mode */}
+				{isEditMode && gameId && (
+					<input type="hidden" name="gameId" value={gameId} />
+				)}
+
 				{/* Player Limit Input */}
 				<div>
 					<label
@@ -42,9 +72,9 @@ export function GameForm() {
 						type="number"
 						id="playerLimit"
 						name="playerLimit"
-						min="1"
+						min={isEditMode ? currentPlayers : 1}
 						max="100"
-						defaultValue="10"
+						defaultValue={initialPlayerLimit}
 						required
 						disabled={isSubmitting || isSuccess}
 						className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -53,6 +83,12 @@ export function GameForm() {
 						}
 						aria-invalid={errors.playerLimit ? "true" : "false"}
 					/>
+					{isEditMode && currentPlayers > 0 && (
+						<p className="mt-1 text-xs text-gray-500">
+							現在{currentPlayers}人が参加しているため、{currentPlayers}
+							人以上の値を設定してください
+						</p>
+					)}
 					{errors.playerLimit && (
 						<p
 							id="playerLimit-error"
@@ -81,11 +117,17 @@ export function GameForm() {
 						disabled={isSubmitting || isSuccess}
 						className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
 					>
-						{isSubmitting ? "作成中..." : "ゲームを作成"}
+						{isSubmitting
+							? isEditMode
+								? "更新中..."
+								: "作成中..."
+							: isEditMode
+								? "設定を更新"
+								: "ゲームを作成"}
 					</button>
 
 					<a
-						href="/top"
+						href={isEditMode ? `/games/${gameId}` : "/top"}
 						className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors text-center"
 					>
 						キャンセル
@@ -94,11 +136,13 @@ export function GameForm() {
 			</form>
 
 			{/* Help Text */}
-			<div className="mt-6 text-sm text-gray-600">
-				<p>
-					作成されたゲームは「準備中」ステータスで開始されます。プレゼンターを追加してエピソードを登録後、「出題中」に変更できます。
-				</p>
-			</div>
+			{!isEditMode && (
+				<div className="mt-6 text-sm text-gray-600">
+					<p>
+						作成されたゲームは「準備中」ステータスで開始されます。プレゼンターを追加してエピソードを登録後、「出題中」に変更できます。
+					</p>
+				</div>
+			)}
 		</div>
 	);
 }

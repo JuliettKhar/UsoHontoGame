@@ -252,16 +252,16 @@ This document provides a complete, dependency-ordered task list for implementing
 
 ### Application Layer
 
-- [ ] T076 [US5] Create GameDetailDto type in `src/server/application/dto/GameDetailDto.ts`
-- [ ] T077 [US5] Implement UpdateGameSettings use case in `src/server/application/use-cases/games/UpdateGameSettings.ts`
-- [ ] T078 [US5] Write unit tests for UpdateGameSettings in `tests/unit/use-cases/UpdateGameSettings.test.ts`
+- [x] T076 [US5] Create GameDetailDto type in `src/server/application/dto/GameDetailDto.ts`
+- [x] T077 [US5] Implement UpdateGameSettings use case in `src/server/application/use-cases/games/UpdateGameSettings.ts`
+- [x] T078 [US5] Write unit tests for UpdateGameSettings in `tests/unit/use-cases/UpdateGameSettings.test.ts`
 
 ### Presentation Layer
 
-- [ ] T079 [US5] Create updateGameAction Server Action with Zod in `src/app/actions/game.ts`
-- [ ] T080 [US5] Create game detail/edit page in `src/app/games/[id]/page.tsx`
-- [ ] T081 [US5] Add edit mode to GameForm component in `src/components/domain/game/GameForm.tsx`
-- [ ] T082 [US5] Write E2E test for game editing flow in `tests/e2e/game-edit.spec.ts`
+- [x] T079 [US5] Create updateGameAction Server Action with Zod in `src/app/actions/game.ts`
+- [x] T080 [US5] Create game detail/edit page in `src/app/games/[id]/page.tsx`
+- [x] T081 [US5] Add edit mode to GameForm component in `src/components/domain/game/GameForm.tsx`
+- [x] T082 [US5] Write E2E test for game editing flow in `tests/e2e/game-edit.spec.ts`
 
 **US5 Completion Criteria**:
 - ✅ Player limit editable when status is 準備中

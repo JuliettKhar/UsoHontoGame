@@ -10,9 +10,11 @@ import { CreateGame } from "@/server/application/use-cases/games/CreateGame";
 import { StartAcceptingResponses } from "@/server/application/use-cases/games/StartAcceptingResponses";
 import { CloseGame } from "@/server/application/use-cases/games/CloseGame";
 import { GetGamesByCreator } from "@/server/application/use-cases/games/GetGamesByCreator";
+import { UpdateGameSettings } from "@/server/application/use-cases/games/UpdateGameSettings";
 import { createGameRepository } from "@/server/infrastructure/repositories";
-import { CreateGameSchema, StartAcceptingSchema } from "@/server/domain/schemas/gameSchemas";
+import { CreateGameSchema, StartAcceptingSchema, UpdateGameSchema } from "@/server/domain/schemas/gameSchemas";
 import type { CreateGameOutput, GameManagementDto } from "@/server/application/dto/GameDto";
+import type { GameDetailDto } from "@/server/application/dto/GameDetailDto";
 import {getCookie} from "@/lib/cookies";
 import {COOKIE_NAMES} from "@/lib/constants";
 
@@ -272,6 +274,167 @@ export async function getGamesAction(): Promise<
 					error instanceof Error
 						? error.message
 						: "ゲーム一覧の取得に失敗しました",
+				],
+			},
+		};
+	}
+}
+
+/**
+ * Server Action: Get game detail by ID
+ * Fetches game details for editing/viewing
+ * @param gameId Game ID to fetch
+ * @returns Game detail or error
+ */
+export async function getGameDetailAction(
+	gameId: string,
+): Promise<
+	| { success: true; game: GameDetailDto }
+	| { success: false; errors: Record<string, string[]> }
+> {
+	try {
+		// Get session ID (for authorization)
+		const sessionId = await getCookie(COOKIE_NAMES.SESSION_ID);
+
+		if (!sessionId) {
+			return {
+				success: false,
+				errors: {
+					_form: ["セッションが見つかりません。ログインし直してください。"],
+				},
+			};
+		}
+
+		// Get game from repository
+		const repository = createGameRepository();
+		const game = await repository.findById({ toString: () => gameId } as any);
+
+		if (!game) {
+			return {
+				success: false,
+				errors: {
+					_form: ["ゲームが見つかりません"],
+				},
+			};
+		}
+
+		// Check authorization - only creator can view/edit
+		if (game.creatorId !== sessionId) {
+			return {
+				success: false,
+				errors: {
+					_form: ["このゲームの編集権限がありません"],
+				},
+			};
+		}
+
+		// Map to DTO
+		const gameDetailDto: GameDetailDto = {
+			id: game.id.toString(),
+			name: game.name,
+			status: game.status.toString(),
+			maxPlayers: game.maxPlayers,
+			currentPlayers: game.currentPlayers,
+			availableSlots: game.availableSlots,
+			creatorId: game.creatorId,
+			createdAt: game.createdAt,
+			updatedAt: game.updatedAt,
+		};
+
+		return {
+			success: true,
+			game: gameDetailDto,
+		};
+	} catch (error) {
+		console.error("Failed to get game detail:", error);
+		return {
+			success: false,
+			errors: {
+				_form: [
+					error instanceof Error
+						? error.message
+						: "ゲームの取得に失敗しました",
+				],
+			},
+		};
+	}
+}
+
+/**
+ * Server Action: Update game settings
+ * Updates game settings (player limit) when game is in preparation status
+ * @param formData Form data with gameId and playerLimit
+ * @returns Updated game detail or validation errors
+ */
+export async function updateGameAction(
+	formData: FormData,
+): Promise<
+	| { success: true; game: GameDetailDto }
+	| { success: false; errors: Record<string, string[]> }
+> {
+	try {
+		// Extract and parse form data
+		const rawData = {
+			gameId: formData.get("gameId") as string,
+			playerLimit: formData.get("playerLimit")
+				? Number(formData.get("playerLimit"))
+				: undefined,
+		};
+
+		// Validate with Zod schema
+		const validationResult = UpdateGameSchema.safeParse(rawData);
+
+		if (!validationResult.success) {
+			return {
+				success: false,
+				errors: validationResult.error.flatten().fieldErrors,
+			};
+		}
+
+		// Get session ID (for authorization)
+		const sessionId = await getCookie(COOKIE_NAMES.SESSION_ID);
+
+		if (!sessionId) {
+			return {
+				success: false,
+				errors: {
+					_form: ["セッションが見つかりません。ログインし直してください。"],
+				},
+			};
+		}
+
+		// Execute UpdateGameSettings use case
+		const repository = createGameRepository();
+		const useCase = new UpdateGameSettings(repository);
+
+		const result = await useCase.execute({
+			gameId: validationResult.data.gameId,
+			playerLimit: validationResult.data.playerLimit,
+			requesterId: sessionId,
+		});
+
+		if (!result.game) {
+			return {
+				success: false,
+				errors: {
+					_form: ["ゲームの更新に失敗しました"],
+				},
+			};
+		}
+
+		return {
+			success: true,
+			game: result.game,
+		};
+	} catch (error) {
+		console.error("Failed to update game:", error);
+		return {
+			success: false,
+			errors: {
+				_form: [
+					error instanceof Error
+						? error.message
+						: "ゲームの更新に失敗しました",
 				],
 			},
 		};

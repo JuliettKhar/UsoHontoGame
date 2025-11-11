@@ -3,7 +3,7 @@
 // Display all games created by the moderator
 
 import { redirect } from "next/navigation";
-import { GameList } from "@/components/domain/game/GameList";
+import { GameListClient } from "@/components/domain/game/GameListClient";
 import { getGamesAction } from "@/app/actions/game";
 import { getCookie } from "@/lib/cookies";
 import { COOKIE_NAMES } from "@/lib/constants";
@@ -67,7 +67,7 @@ export default async function GamesPage() {
 			</div>
 
 			{/* Game List */}
-			<GameList games={result.games} managementView={true} />
+			<GameListClient games={result.games} managementView={true} />
 		</div>
 	);
 }

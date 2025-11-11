@@ -5,6 +5,7 @@
 import type { GameId } from '../value-objects/GameId';
 import { GameStatus } from '../value-objects/GameStatus';
 import { InvalidStatusTransitionError } from '../errors/InvalidStatusTransitionError';
+import { ValidationError } from '../errors/ValidationError';
 
 /**
  * Error thrown when game name is invalid
@@ -193,6 +194,30 @@ export class Game {
       throw new InvalidPlayerCountError('No players to remove');
     }
     this._currentPlayers--;
+    this._updatedAt = new Date();
+  }
+
+  /**
+   * Updates the maximum player limit
+   * Can only be done when in preparation status
+   * New limit must be >= current players
+   * @param newLimit New maximum player limit (1-100)
+   * @throws ValidationError if limit is invalid or less than current players
+   */
+  updatePlayerLimit(newLimit: number): void {
+    // Validate range
+    if (newLimit < 1 || newLimit > 100) {
+      throw new ValidationError('Player limit must be between 1 and 100');
+    }
+
+    // New limit must be >= current players
+    if (newLimit < this._currentPlayers) {
+      throw new ValidationError(
+        `New player limit (${newLimit}) cannot be less than current players (${this._currentPlayers})`
+      );
+    }
+
+    this._maxPlayers = newLimit;
     this._updatedAt = new Date();
   }
 
