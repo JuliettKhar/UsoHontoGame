@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-11-11
 
 ## Active Technologies
+- TypeScript 5 (strict mode) + Next.js 16.0.1, React 19.2.0, Prisma 6.19.0, Zod 4.1.12 (002-game-preparation)
+- SQLite via Prisma (existing database at `prisma/dev.db`) (002-game-preparation)
 
 **Language & Framework**:
 - TypeScript 5 with strict mode enabled
@@ -157,6 +159,7 @@ npm run check              # Lint and format with Biome
    - Game status management (準備中/出題中/締切)
 
 ## Recent Changes
+- 002-game-preparation: Added TypeScript 5 (strict mode) + Next.js 16.0.1, React 19.2.0, Prisma 6.19.0, Zod 4.1.12
 
 - 2025-11-11: Migrated from in-memory to SQLite persistence
   - Added Prisma ORM integration
@@ -166,7 +169,6 @@ npm run check              # Lint and format with Biome
   - Game CRUD operations
   - Status management
   - Authorization checks
-- 2025-11-06: Initial setup
   - Next.js 16 with App Router
   - Clean Architecture structure
   - Session management

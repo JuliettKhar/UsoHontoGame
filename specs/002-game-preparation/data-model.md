@@ -15,10 +15,11 @@
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
 | id | GameId (UUID) | Required, Unique | System-generated unique identifier (FR-001) |
+| name | String | Optional, Max 100 chars | Custom game name - defaults to UUID if not provided (FR-001a, FR-001b) |
 | creatorId | String | Required | Session ID of the moderator who created the game |
 | playerLimit | Integer | Required, 1-100 | Maximum number of players allowed (FR-002) |
 | status | GameStatus | Required | Current game state: 準備中, 出題中, or 締切 (FR-007) |
-| presenters | Presenter[] | 1-10 items | Collection of presenters for this game (FR-003) |
+| presenters | Presenter[] | 1-10 items | Collection of presenters for this game (FR-003, FR-003a) |
 | createdAt | DateTime | Required, Auto | Timestamp when game was created |
 | updatedAt | DateTime | Required, Auto | Timestamp when game was last modified |
 
@@ -158,9 +159,10 @@ class GameStatus {
 Game (1) ──────< (N) Presenter (1) ──────< (3) Episode
   │                     │                        │
   │ id                  │ gameId                 │ presenterId
-  │ creatorId           │ nickname               │ text
-  │ playerLimit         │ episodes[]             │ isLie ⚠️ CONFIDENTIAL
-  │ status              │ createdAt              │ createdAt
+  │ name (optional)     │ nickname               │ text
+  │ creatorId           │ episodes[]             │ isLie ⚠️ CONFIDENTIAL
+  │ playerLimit         │ createdAt              │ createdAt
+  │ status              │                        │
   │ presenters[]        │                        │
   │ createdAt           │                        │
   │ updatedAt           │                        │
@@ -307,6 +309,7 @@ generator client {
 
 model Game {
   id          String      @id @default(uuid())
+  name        String?     // Optional custom name (max 100 chars)
   creatorId   String      // Session ID
   playerLimit Int
   status      String      // '準備中' | '出題中' | '締切'
@@ -364,6 +367,9 @@ export const GameStatusSchema = z.enum(['準備中', '出題中', '締切'], {
 
 // Input Schemas (Server Actions & Forms)
 export const CreateGameSchema = z.object({
+  name: z.string()
+    .max(100, { message: 'ゲーム名は100文字以下でなければなりません' })
+    .optional(),
   playerLimit: z.number()
     .int({ message: 'プレイヤー数は整数でなければなりません' })
     .min(1, { message: 'プレイヤー数は1以上でなければなりません' })

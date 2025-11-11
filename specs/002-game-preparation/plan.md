@@ -1,37 +1,33 @@
 # Implementation Plan: Game Preparation for Moderators
 
-**Branch**: `002-game-preparation` | **Date**: 2025-11-10 | **Spec**: [spec.md](./spec.md)
+**Branch**: `002-game-preparation` | **Date**: 2025-11-11 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/002-game-preparation/spec.md`
-
-**Note**: This plan incorporates SQLite database (user requirement) and Zod validation (user requirement).
 
 ## Summary
 
-This feature enables moderators to create and manage truth-or-lie games with presenters who register episodes (3 per presenter, one marked as a lie). Games progress through three statuses (準備中 → 出題中 → 締切), with full CRUD operations and validation.
+This feature enables moderators to create and manage games for the UsoHontoGame (Two Truths and a Lie) platform. Moderators can create games with custom names and player limits, add presenters with their three episodes (marking one as a lie), manage game status through three phases (準備中/出題中/締切), and perform full CRUD operations on games. The feature includes the ability to set game names and configure presenters/episodes during the initial game creation flow, streamlining the game setup process.
 
-**Technical approach**: SQLite with Prisma ORM for persistence, Zod for runtime validation at API boundaries, Clean Architecture with repository pattern, domain-driven design, and Server Actions for API layer.
-
-**Key Definitions**:
-- **Complete Presenter**: A presenter who has exactly 3 episodes registered AND exactly 1 episode marked as a lie (required for status transition to 出題中)
-- **Moderator vs Creator**: "Moderator" is the user-facing role name; "creatorId" is the technical field name in database/code for the user who created the game
+The implementation follows Clean Architecture with React Server Components, uses SQLite for persistence via Prisma, and leverages Next.js 16 App Router with Server Actions for mutations.
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5 with strict mode enabled + Next.js 16.0.1, React 19.2.0
-**Primary Dependencies**: Prisma 6.x (ORM), Zod 3.x (runtime validation), nanoid 5.1.6 (ID generation), Tailwind CSS v4 (styling)
-**Storage**: SQLite (file-based database via Prisma)
-**Testing**: Vitest (unit/integration), Playwright (E2E), Zod schema tests
-**Target Platform**: Web (Next.js App Router with Server Components)
-**Project Type**: web - Next.js full-stack application
-**Performance Goals**: Game list loads in <1s for 50 games, status transitions reflect in <2s, game creation completes in <1 min (SC-001, SC-003, SC-004)
+**Language/Version**: TypeScript 5 (strict mode)
+**Primary Dependencies**: Next.js 16.0.1, React 19.2.0, Prisma 6.19.0, Zod 4.1.12
+**Storage**: SQLite via Prisma (existing database at `prisma/dev.db`)
+**Testing**: Vitest 4.0.7 (unit), Playwright 1.56.1 (E2E), React Testing Library (component)
+**Target Platform**: Web application (Next.js App Router)
+**Project Type**: Web (Next.js monorepo with frontend/backend unified)
+**Performance Goals**:
+- Game creation < 2 seconds
+- Game list load < 1 second for 50 games
+- Status transitions reflect on TOP page within 2 seconds
 **Constraints**:
-- Player limit: 1-100 per game (validated via Zod)
-- Presenters: 1-10 per game (validated in domain entity)
-- Episodes: Exactly 3 per presenter (validated via CompletePresenterSchema)
-- Episode text: 1-1000 characters (validated via Zod schema - critical requirement)
-- Typical load: 50 games per moderator
-- Concurrent edits: Last-write-wins (no optimistic locking in MVP)
-**Scale/Scope**: MVP for 10-50 moderators, up to 50 games per moderator, ~2000 database rows per moderator (games + presenters + episodes)
+- Player limit: 1-100 per game
+- Presenters: 1-10 per game
+- Episodes: exactly 3 per presenter
+- Game name: max 100 characters (optional)
+- Episode text: max 1000 characters
+**Scale/Scope**: MVP supporting up to 50 games per moderator, 100 players per game
 
 ## Constitution Check
 
@@ -39,27 +35,68 @@ This feature enables moderators to create and manage truth-or-lie games with pre
 
 ### Core Principles Compliance
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| **0. Git commit** | ✅ PASS | Will commit after each implementation milestone (Prisma setup, Zod schemas, domain layer, use cases, etc.) |
-| **I. Clean Architecture** | ✅ PASS | Game preparation follows strict layering: Domain (Game/Presenter/Episode entities with validation) → Application (CreateGame, AddPresenter use cases) → Infrastructure (PrismaGameRepository) → Presentation (Server Actions with Zod validation) |
-| **II. Component Architecture** | ✅ PASS | UI organized as: Pages (game list, game edit) → Domain (GameList, GameCard, PresenterForm) → UI (Button, Input components) |
-| **III. Custom Hooks Architecture** | ✅ PASS | Game form logic in useGameForm hook with Zod validation, episode form in useEpisodeForm, all validation logic extracted from components |
-| **IV. Test-Driven Development** | ✅ PASS | Will write tests first for Game entity validation, status transitions, Zod schemas, repository operations, use cases |
-| **V. Type Safety** | ✅ PASS | TypeScript strict mode enabled, Prisma provides database-to-code type safety, Zod provides runtime type safety with TypeScript inference, value objects for GameId and GameStatus |
-| **VI. Documentation Standards** | ✅ PASS | Spec follows Given-When-Then format, all 21 functional requirements traced to acceptance criteria |
-| **VII. Server Components First** | ✅ PASS | Game list and detail pages use Server Components with Server Actions, Client Components only for interactive forms (game creation, episode registration) |
+✅ **I. Clean Architecture (NON-NEGOTIABLE)**
+- Domain Layer: Game, Presenter, Episode entities with value objects
+- Application Layer: CreateGame, UpdateGame, DeleteGame, AddPresenter use cases
+- Infrastructure Layer: PrismaGameRepository, PrismaPresenterRepository
+- Presentation Layer: Server Actions in `app/actions/game.ts`, page components
 
-### Technology Standards Compliance
+✅ **II. Component Architecture (NON-NEGOTIABLE)**
+- Pages Layer: GameListPage, GameCreatePage, GameEditPage
+- Domain Layer: GameForm, GameCard, PresenterList, EpisodeInput components
+- UI Layer: Button, Input, Select, Modal (existing reusable components)
 
-| Standard | Status | Notes |
-|----------|--------|-------|
-| **TypeScript 5 strict mode** | ✅ PASS | Project already configured with strict mode |
-| **Next.js App Router** | ✅ PASS | All pages use App Router pattern with Server Components |
-| **Prisma ORM** | ✅ PASS | SQLite database with Prisma for type-safe queries and migrations |
-| **Zod Validation** | ✅ PASS | Runtime validation at API boundaries with TypeScript type inference |
-| **Vitest + Playwright** | ✅ PASS | Unit tests with Vitest, E2E with Playwright, Zod schema tests |
-| **Repository Pattern** | ✅ PASS | IGameRepository interface with PrismaGameRepository implementation, supports testing with InMemoryGameRepository |
+✅ **III. Custom Hooks Architecture (NON-NEGOTIABLE)**
+- `useGameForm`: Form state and validation for game creation/editing
+- `usePresenterManager`: Managing presenters and episodes during creation
+- `useGameList`: Game list state and filtering
+- All logic extracted from components into testable hooks
+
+✅ **IV. Test-Driven Development (NON-NEGOTIABLE)**
+- Unit tests for all use cases, entities, value objects
+- Integration tests for Server Actions and repository operations
+- Component tests for all UI components with hooks
+- E2E tests for complete user flows (create, edit, delete)
+
+✅ **V. Type Safety (NON-NEGOTIABLE)**
+- All functions explicitly typed
+- DTOs defined for all Server Actions (CreateGameDTO, UpdateGameDTO, etc.)
+- Zod schemas for runtime validation
+- No `any` types
+
+✅ **VI. Documentation Standards**
+- Feature spec in `specs/002-game-preparation/spec.md`
+- Implementation plan in `specs/002-game-preparation/plan.md`
+- Tasks in `specs/002-game-preparation/tasks.md`
+- User stories with acceptance criteria in Given-When-Then format
+
+✅ **VII. Server Components First**
+- GameListPage, GameCreatePage, GameEditPage: Server Components for data fetching
+- GameForm, PresenterManager: Client Components for interactivity
+- Clear `"use client"` boundaries
+
+### Technology Stack Compliance
+
+✅ **Frontend Stack**
+- Next.js 16 App Router: Using existing setup
+- React 19: Using existing setup
+- TypeScript 5 strict: Enabled in tsconfig.json
+- Tailwind CSS v4: Using existing setup
+- Biome: Using existing setup
+
+✅ **Backend Stack**
+- Server Actions: For all mutations (create/update/delete)
+- Clean Architecture: Following existing patterns in `src/server/`
+- Repository Pattern: Extending existing PrismaGameRepository
+- Use Case Pattern: Following existing CreateGameUseCase pattern
+
+✅ **Testing Stack**
+- Vitest: Using existing setup
+- React Testing Library: Using existing setup
+- Playwright: Using existing setup
+- TDD: Red-Green-Refactor cycle
+
+**GATE RESULT**: ✅ **PASS** - All constitution checks satisfied, no violations to justify
 
 ## Project Structure
 
@@ -67,195 +104,186 @@ This feature enables moderators to create and manage truth-or-lie games with pre
 
 ```text
 specs/002-game-preparation/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (includes Zod decision)
-├── data-model.md        # Phase 1 output (includes Zod schemas)
-├── quickstart.md        # Phase 1 output (includes Zod setup)
-├── contracts/           # Phase 1 output (references Zod validation)
-│   ├── game-actions.yaml
-│   ├── presenter-actions.yaml
-│   └── use-case-contracts.yaml
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created yet)
+├── spec.md              # Feature specification (user stories, requirements)
+├── plan.md              # This file (implementation plan)
+├── research.md          # Phase 0 output (technical research)
+├── data-model.md        # Phase 1 output (entities, relationships)
+├── quickstart.md        # Phase 1 output (developer guide)
+├── contracts/           # Phase 1 output (API contracts)
+│   ├── game-actions.yaml    # Server Actions contracts
+│   └── domain-schemas.yaml  # Domain entity schemas
+└── tasks.md             # Phase 2 output (NOT created by /speckit.plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
 src/
-├── app/                          # Next.js App Router
-│   ├── actions/
-│   │   ├── game.ts              # Server Actions with Zod validation (FR-001, FR-009, FR-010, FR-012, FR-015)
-│   │   └── presenter.ts         # Server Actions with Zod validation (FR-003, FR-004, FR-005)
-│   ├── games/
-│   │   ├── page.tsx             # Game list page (FR-012)
-│   │   ├── create/
-│   │   │   └── page.tsx         # Game creation page (FR-001, FR-002)
-│   │   └── [id]/
-│   │       ├── page.tsx         # Game detail/edit page (FR-013, FR-021)
-│   │       └── presenters/
-│   │           └── page.tsx     # Presenter management (FR-003, FR-004, FR-005)
-│   └── layout.tsx               # Root layout
+├── app/                          # Next.js App Router (Presentation Layer)
+│   ├── actions/                  # Server Actions
+│   │   └── game.ts              # Game-related mutations (create, update, delete, status)
+│   └── games/                    # Game pages
+│       ├── page.tsx             # Game list page (Server Component)
+│       ├── create/
+│       │   └── page.tsx         # Game creation page (Server Component wrapper)
+│       └── [id]/
+│           ├── page.tsx         # Game detail/edit page (Server Component wrapper)
+│           └── edit/
+│               └── page.tsx     # Game edit page (Server Component wrapper)
 ├── components/
-│   ├── pages/                   # Page-level components
-│   │   ├── GameListPage.tsx
-│   │   └── GameEditPage.tsx
-│   ├── domain/                  # Feature-specific components
+│   ├── pages/                    # Page-level components
+│   │   ├── GameListPage/
+│   │   │   ├── GameListPage.tsx
+│   │   │   └── hooks/
+│   │   │       └── useGameList.ts
+│   │   ├── GameCreatePage/
+│   │   │   ├── GameCreatePage.tsx
+│   │   │   └── hooks/
+│   │   │       ├── useGameForm.ts
+│   │   │       └── usePresenterManager.ts
+│   │   └── GameEditPage/
+│   │       ├── GameEditPage.tsx
+│   │       └── hooks/
+│   │           ├── useGameForm.ts
+│   │           └── usePresenterManager.ts
+│   ├── domain/                   # Domain-specific components
 │   │   └── game/
-│   │       ├── GameList.tsx     # List of games with status badges
-│   │       ├── GameCard.tsx     # Individual game card with actions
-│   │       ├── GameForm.tsx     # Game creation/edit form with Zod validation
-│   │       ├── PresenterList.tsx
-│   │       ├── PresenterForm.tsx
-│   │       ├── EpisodeList.tsx
-│   │       └── EpisodeForm.tsx
-│   └── ui/                      # Reusable UI components
-│       ├── Button.tsx
-│       ├── Input.tsx
-│       ├── Card.tsx
-│       └── Badge.tsx
-├── hooks/                       # Custom hooks for client logic with Zod
-│   ├── useGameForm.ts          # Game form state with Zod validation
-│   ├── usePresenterForm.ts     # Presenter form with Zod validation
-│   └── useEpisodeForm.ts       # Episode form with Zod validation
-├── server/
-│   ├── domain/                  # Domain layer (NO external dependencies except Zod for schemas)
+│   │       ├── GameCard/
+│   │       │   ├── GameCard.tsx
+│   │       │   └── hooks/
+│   │       │       └── useGameCard.ts
+│   │       ├── GameForm/
+│   │       │   ├── GameForm.tsx
+│   │       │   └── hooks/
+│   │       │       └── useGameFormValidation.ts
+│   │       ├── PresenterList/
+│   │       │   ├── PresenterList.tsx
+│   │       │   └── hooks/
+│   │       │       └── usePresenterList.ts
+│   │       ├── PresenterManager/
+│   │       │   ├── PresenterManager.tsx
+│   │       │   └── hooks/
+│   │       │       └── usePresenterManager.ts
+│   │       └── EpisodeInput/
+│   │           ├── EpisodeInput.tsx
+│   │           └── hooks/
+│   │               └── useEpisodeInput.ts
+│   └── ui/                       # Reusable UI components (existing)
+│       ├── Button/
+│       ├── Input/
+│       ├── Select/
+│       ├── Modal/
+│       └── Card/
+├── server/                       # Backend (Clean Architecture)
+│   ├── domain/                   # Domain Layer
 │   │   ├── entities/
-│   │   │   ├── Game.ts         # Game aggregate root (FR-001 through FR-021)
-│   │   │   ├── Presenter.ts    # Presenter entity (FR-003, FR-004)
-│   │   │   └── Episode.ts      # Episode entity (FR-004, FR-005, FR-006)
+│   │   │   ├── Game.ts          # Existing - extend with name field
+│   │   │   ├── Presenter.ts     # New entity
+│   │   │   └── Episode.ts       # New entity
 │   │   ├── value-objects/
-│   │   │   ├── GameId.ts       # UUID value object (FR-001)
-│   │   │   └── GameStatus.ts   # Status enum (FR-007, FR-008)
-│   │   ├── schemas/            # Zod validation schemas (NEW)
-│   │   │   ├── gameSchemas.ts  # All validation schemas with Japanese error messages
-│   │   │   └── validators.ts   # Complex validation rules (complete presenter, ready to accept)
-│   │   ├── repositories/
-│   │   │   └── IGameRepository.ts  # Repository interface
-│   │   └── errors/
-│   │       ├── ValidationError.ts
-│   │       └── InvalidStatusTransitionError.ts
-│   ├── application/             # Application layer (use cases)
+│   │   │   ├── GameId.ts        # Existing
+│   │   │   ├── PlayerId.ts      # Existing
+│   │   │   ├── GameName.ts      # New - validates game name (optional, max 100 chars)
+│   │   │   ├── PresenterId.ts   # New
+│   │   │   ├── EpisodeId.ts     # New
+│   │   │   ├── EpisodeText.ts   # New - validates episode text (max 1000 chars)
+│   │   │   └── GameStatus.ts    # Existing - extend with 準備中/出題中/締切
+│   │   ├── repositories/         # Repository interfaces
+│   │   │   ├── GameRepository.ts     # Existing - extend with new methods
+│   │   │   ├── PresenterRepository.ts # New interface
+│   │   │   └── EpisodeRepository.ts   # New interface
+│   │   ├── errors/
+│   │   │   ├── GameNotFoundError.ts   # Existing
+│   │   │   ├── PresenterLimitError.ts # New
+│   │   │   ├── EpisodeLimitError.ts   # New
+│   │   │   └── InvalidStatusTransitionError.ts # New
+│   │   └── schemas/              # Zod validation schemas
+│   │       ├── gameSchemas.ts   # Existing - extend
+│   │       ├── presenterSchemas.ts # New
+│   │       └── episodeSchemas.ts   # New
+│   ├── application/              # Application Layer
 │   │   ├── use-cases/
-│   │   │   └── games/
-│   │   │       ├── CreateGame.ts              # FR-001, FR-002, FR-008
-│   │   │       ├── UpdateGameSettings.ts      # FR-013
-│   │   │       ├── DeleteGame.ts              # FR-015, FR-016
-│   │   │       ├── StartAcceptingResponses.ts # FR-009, FR-011, FR-018, FR-019
-│   │   │       ├── CloseGame.ts               # FR-010
-│   │   │       ├── GetGamesByCreator.ts       # FR-012
-│   │   │       ├── GetGameDetail.ts           # FR-021
-│   │   │       ├── AddPresenter.ts            # FR-003
-│   │   │       ├── RemovePresenter.ts         # FR-014
-│   │   │       ├── AddEpisode.ts              # FR-004, FR-005
-│   │   │       └── GetPresenterEpisodes.ts    # FR-006
+│   │   │   ├── games/
+│   │   │   │   ├── CreateGame.ts      # Existing - extend with name, presenters
+│   │   │   │   ├── UpdateGame.ts      # New
+│   │   │   │   ├── DeleteGame.ts      # New
+│   │   │   │   ├── ListGames.ts       # New
+│   │   │   │   ├── GetGame.ts         # New
+│   │   │   │   └── ChangeGameStatus.ts # New
+│   │   │   └── presenters/
+│   │   │       ├── AddPresenter.ts    # New
+│   │   │       ├── RemovePresenter.ts # New
+│   │   │       └── UpdatePresenterEpisodes.ts # New
 │   │   └── dto/
-│   │       ├── GameDto.ts
-│   │       ├── GameDetailDto.ts
-│   │       ├── EpisodeDto.ts               # Public (no isLie)
-│   │       └── EpisodeWithLieDto.ts        # Private (with isLie - FR-006)
-│   └── infrastructure/          # Infrastructure layer
+│   │       ├── requests/
+│   │       │   ├── CreateGameRequest.ts     # Extend with name, presenters
+│   │       │   ├── UpdateGameRequest.ts     # New
+│   │       │   ├── AddPresenterRequest.ts   # New
+│   │       │   └── ChangeStatusRequest.ts   # New
+│   │       └── responses/
+│   │           ├── GameResponse.ts          # Extend with presenters
+│   │           ├── PresenterResponse.ts     # New
+│   │           └── EpisodeResponse.ts       # New
+│   └── infrastructure/           # Infrastructure Layer
 │       └── repositories/
-│           ├── PrismaGameRepository.ts     # Prisma implementation
-│           ├── InMemoryGameRepository.ts   # For testing
-│           └── index.ts                    # Repository factory with DI
-└── types/
-    └── game.ts                  # Shared type definitions
+│           ├── PrismaGameRepository.ts      # Existing - extend
+│           ├── PrismaPresenterRepository.ts # New
+│           └── PrismaEpisodeRepository.ts   # New
+├── hooks/                        # Shared custom hooks
+│   └── useSession.ts            # Existing - for creator ID
+└── types/                        # TypeScript type definitions
+    ├── game.ts                  # Extend with name, presenters
+    ├── presenter.ts             # New
+    └── episode.ts               # New
 
 prisma/
-├── schema.prisma               # Database schema (Game, Presenter, Episode models)
-├── migrations/                 # Prisma migration history
-└── dev.db                      # SQLite database file
+├── schema.prisma                # Extend Game, add Presenter, Episode models
+├── migrations/                  # New migration for presenters/episodes
+└── dev.db                       # Existing SQLite database
 
 tests/
-├── unit/                       # Unit tests (domain layer, use cases, Zod schemas)
-│   ├── domain/
-│   │   ├── Game.test.ts
-│   │   ├── GameId.test.ts
-│   │   ├── GameStatus.test.ts
-│   │   ├── Presenter.test.ts
-│   │   └── Episode.test.ts
-│   ├── schemas/                # Zod schema tests (NEW)
-│   │   ├── gameSchemas.test.ts
-│   │   └── validators.test.ts
-│   └── use-cases/
-│       ├── CreateGame.test.ts
-│       ├── StartAcceptingResponses.test.ts
-│       └── GetGamesByCreator.test.ts
-├── integration/                # Integration tests (repositories)
+├── unit/
+│   ├── entities/
+│   │   ├── Game.test.ts        # Extend with name tests
+│   │   ├── Presenter.test.ts   # New
+│   │   └── Episode.test.ts     # New
+│   ├── value-objects/
+│   │   ├── GameName.test.ts    # New
+│   │   └── EpisodeText.test.ts # New
+│   ├── use-cases/
+│   │   ├── CreateGame.test.ts  # Extend with name, presenters
+│   │   ├── UpdateGame.test.ts  # New
+│   │   ├── DeleteGame.test.ts  # New
+│   │   └── AddPresenter.test.ts # New
+│   └── hooks/
+│       ├── useGameForm.test.ts
+│       └── usePresenterManager.test.ts
+├── integration/
+│   ├── api/
+│   │   └── game-actions.test.ts # Test Server Actions
 │   └── repositories/
 │       ├── PrismaGameRepository.test.ts
-│       └── InMemoryGameRepository.test.ts
-└── e2e/                        # E2E tests (Playwright)
+│       └── PrismaPresenterRepository.test.ts
+├── component/
+│   ├── pages/
+│   │   ├── GameListPage.test.tsx
+│   │   ├── GameCreatePage.test.tsx
+│   │   └── GameEditPage.test.tsx
+│   └── domain/
+│       ├── GameForm.test.tsx
+│       ├── PresenterManager.test.tsx
+│       └── GameCard.test.tsx
+└── e2e/
     ├── game-creation.spec.ts
-    ├── presenter-management.spec.ts
-    └── status-transitions.spec.ts
+    ├── game-edit.spec.ts
+    ├── game-deletion.spec.ts
+    └── game-status-transition.spec.ts
 ```
 
-**Structure Decision**: This is a Next.js web application using the App Router pattern. The architecture follows Clean Architecture principles with clear separation:
-
-1. **Domain Layer** (`src/server/domain/`): Pure business logic with entities (Game, Presenter, Episode), value objects (GameId, GameStatus), repository interfaces, and **Zod validation schemas** for type-safe runtime validation.
-
-2. **Application Layer** (`src/server/application/`): Use cases orchestrate domain entities. DTOs handle data transfer with proper security (EpisodeDto vs EpisodeWithLieDto for FR-006).
-
-3. **Infrastructure Layer** (`src/server/infrastructure/`): Concrete implementations of repositories. PrismaGameRepository for production, InMemoryGameRepository for testing.
-
-4. **Presentation Layer** (`src/app/`, `src/components/`): Next.js App Router with Server Components and Server Actions. **All Server Actions validate input with Zod before executing use cases**. Client Components use custom hooks with Zod for form validation.
-
-**Zod Integration Points**:
-- **Server Actions**: Validate all inputs at API boundary (parse with Zod, return structured errors)
-- **Custom Hooks**: Validate form inputs client-side (same Zod schemas, same error messages)
-- **Use Cases**: Receive pre-validated data from Server Actions
-- **Tests**: Independently test Zod schemas for all validation rules
-
-**Authorization & Error Handling**:
-- **Game Creator Authorization**: Only the user who created a game (creatorId === sessionId) can edit, delete, or change status
-- **Presenter Authorization**: Presenters can manage their own episodes; game creators can manage all episodes in their games
-- **Presenter Lookup**: When adding a presenter by nickname, system validates nickname exists in session system and returns NotFoundError if invalid
-- **Lie Marker Security**: isLie field NEVER exposed in public DTOs (EpisodeDto); only in private DTOs (EpisodeWithLieDto) with access control
+**Structure Decision**: This is a web application using Next.js 16 App Router with unified frontend/backend. The structure follows Clean Architecture with clear layer separation in the `src/server/` directory. Components follow the three-layer hierarchy (pages/domain/ui), and all component logic is extracted into custom hooks. The existing codebase already has session management (001-session-top-page) and basic game creation, which this feature extends with presenters, episodes, game names, and full CRUD operations.
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-**Status**: ✅ NO VIOLATIONS
-
-All constitution principles are satisfied. The architecture uses established patterns (Clean Architecture, Repository Pattern, Custom Hooks, Zod Validation) that are justified by:
-
-- **Repository Pattern**: Required for Clean Architecture compliance and testability (allows InMemory substitution in tests)
-- **Prisma ORM**: Provides type safety and migration management, aligns with Type Safety principle (V)
-- **Zod Validation**: User requirement - provides runtime type safety, single source of truth for validation rules, TypeScript type inference
-- **Three-layer architecture**: Standard Clean Architecture pattern, not excessive for domain complexity
-- **Value Objects**: Domain-Driven Design best practice for validation and type safety
-
-No additional complexity beyond constitutional requirements.
-
-## Implementation Phases
-
-### Phase 0: Setup (Completed in research.md + quickstart.md)
-- SQLite + Prisma setup with migrations
-- Zod installation and schema definitions
-- Repository factory with dependency injection
-
-### Phase 1: Core Domain (To be implemented in /speckit.tasks)
-- Value objects (GameId, GameStatus) with Zod schemas
-- Domain entities (Game, Presenter, Episode) with business logic
-- Domain errors and validation
-- Zod validation schemas for all inputs
-
-### Phase 2: Infrastructure (To be implemented in /speckit.tasks)
-- PrismaGameRepository implementation
-- InMemoryGameRepository for testing
-- Repository tests (unit + integration)
-
-### Phase 3: Application Layer (To be implemented in /speckit.tasks)
-- Use cases for all functional requirements (FR-001 through FR-021)
-- DTOs with security boundaries (EpisodeDto vs EpisodeWithLieDto)
-- Use case tests with Zod validation
-
-### Phase 4: Presentation Layer (To be implemented in /speckit.tasks)
-- Server Actions with Zod validation at boundaries
-- Custom hooks with Zod for client-side validation
-- UI components (Pages/Domain/UI architecture)
-- E2E tests for full workflows
-
-All implementation steps will be generated in `tasks.md` via `/speckit.tasks` command.
+No violations detected. All implementation follows constitution principles without exceptions.
