@@ -53,17 +53,20 @@ components/pages/
 ├── TopPage/
 │   ├── index.tsx          # Landing page component
 │   ├── TopPage.types.ts   # Type definitions
+│   ├── TopPage.test.tsx   # Unit tests (co-located)
 │   ├── TopPage.stories.tsx # Storybook stories
 │   └── hooks/
 │       └── useTopPage.ts  # Page-specific logic
 ├── DashboardPage/
 │   ├── index.tsx
 │   ├── DashboardPage.types.ts
+│   ├── DashboardPage.test.tsx
 │   └── hooks/
 │       └── useDashboardPage.ts
 └── SettingsPage/
     ├── index.tsx
     ├── SettingsPage.types.ts
+    ├── SettingsPage.test.tsx
     └── hooks/
         └── useSettingsPage.ts
 ```
@@ -1641,19 +1644,52 @@ export type ApiResponse<T> = {
 
 ## Testing Strategy
 
+### Test File Organization
+
+**Co-located Tests**: Unit tests are placed alongside the components they test for improved maintainability and discoverability.
+
+```
+components/pages/
+├── GameDetailPage/
+│   ├── index.tsx                      # Component implementation
+│   ├── GameDetailPage.types.ts        # Type definitions
+│   ├── GameDetailPage.test.tsx        # Component tests (co-located)
+│   └── GameDetailPageError.test.tsx   # Error component tests
+└── TopPage/
+    ├── index.tsx
+    ├── TopPage.test.tsx               # Co-located test
+    └── TopPageNicknameSetup.test.tsx  # Sub-component test
+```
+
+**Test Utilities**: Shared test helpers and mock data factories are centralized:
+```
+tests/
+├── utils/
+│   ├── test-helpers.tsx    # Mock factories, test utilities
+│   └── setup.ts            # Test environment setup
+├── e2e/                    # Playwright E2E tests
+└── integration/            # Integration tests
+```
+
 ### 1. Component Testing
-Test components in isolation:
+Test components in isolation using Vitest and React Testing Library:
 
 ```tsx
-// __tests__/Button.test.tsx
+// src/components/pages/Button/Button.test.tsx
 import { render, screen } from '@testing-library/react';
-import Button from '../Button';
+import { Button } from './index';
 
 test('renders button with text', () => {
   render(<Button>Click me</Button>);
   expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
 });
 ```
+
+**Testing Principles**:
+- Tests are co-located with components (`.test.tsx` files alongside `.tsx` files)
+- Mock external dependencies (domain components, hooks, Next.js components)
+- Use test utilities from `tests/utils/test-helpers.tsx` for mock data
+- Vitest automatically discovers `*.test.tsx` files in `src/` directory
 
 ### 2. Integration Testing
 Test user workflows and component interactions.

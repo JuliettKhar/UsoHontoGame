@@ -56,7 +56,11 @@ src/
 │   ├── domain/                   # Domain-specific components
 │   │   ├── game/                 # Game management components
 │   │   └── session/              # Session components
-│   ├── pages/                    # Page-level components
+│   ├── pages/                    # Page-level components (with co-located tests)
+│   │   └── MyPage/
+│   │       ├── index.tsx         # Component implementation
+│   │       ├── MyPage.test.tsx   # Unit tests
+│   │       └── hooks/            # Component-specific hooks
 │   └── ui/                       # Reusable UI components
 ├── hooks/                        # React custom hooks
 ├── lib/                          # Utility functions
@@ -78,7 +82,8 @@ src/
 tests/
 ├── e2e/                          # Playwright E2E tests
 ├── integration/                  # Integration tests
-└── unit/                         # Vitest unit tests
+├── unit/                         # Vitest unit tests (non-component tests)
+└── utils/                        # Test utilities (mocks, helpers)
 
 prisma/
 ├── schema.prisma                 # Database schema
@@ -111,6 +116,12 @@ npm run test:e2e           # Run E2E tests (Playwright)
 npm run test:e2e:ui        # Run E2E tests with UI
 npm run test:e2e:debug     # Debug E2E tests
 ```
+
+**Test Organization**:
+- **Component Tests**: Co-located with components (e.g., `src/components/pages/MyPage/MyPage.test.tsx`)
+- **E2E Tests**: `tests/e2e/` directory
+- **Integration Tests**: `tests/integration/` directory
+- **Test Utilities**: `tests/utils/` for shared mocks and helpers
 
 **Code Quality**:
 ```bash
@@ -156,6 +167,7 @@ npm run check              # Lint and format with Biome
   src/components/pages/MyPage/
   ├── index.tsx                    # Presentational component
   ├── MyPage.types.ts              # Type definitions
+  ├── MyPage.test.tsx              # Unit tests (co-located)
   └── hooks/                       # Custom hooks (Client Components only)
       └── useMyPage.ts
   ```
@@ -164,6 +176,10 @@ npm run check              # Lint and format with Biome
   - Domain/UI component orchestration
   - Call custom hooks for business logic
   - No direct data fetching or state logic
+- Testing:
+  - Unit tests are co-located with components
+  - Test files use `.test.tsx` extension
+  - Vitest + React Testing Library for component testing
 
 **Custom Hooks** (`components/pages/*/hooks/`):
 - **Business logic encapsulation**
