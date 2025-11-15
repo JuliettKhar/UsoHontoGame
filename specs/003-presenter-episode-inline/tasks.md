@@ -14,12 +14,12 @@ Transform presenter registration from a 2-step process to a single-form submissi
 
 ### Tasks
 
-- [ ] T001 Verify all dependencies are installed (Next.js 16.0.1, React 19.2.0, Zod 3.x, nanoid 5.1.6)
-- [ ] T002 Create feature branch 003-presenter-episode-inline if not already created
-- [ ] T003 [P] Create placeholder files for new components in src/components/domain/game/
-- [ ] T004 [P] Create placeholder files for new hooks in src/hooks/
-- [ ] T005 [P] Create placeholder files for new use cases in src/server/application/use-cases/games/
-- [ ] T006 [P] Create test file structure in tests/unit/ and tests/component/
+- [X] T001 Verify all dependencies are installed (Next.js 16.0.1, React 19.2.0, Zod 3.x, nanoid 5.1.6)
+- [X] T002 Create feature branch 003-presenter-episode-inline if not already created
+- [X] T003 [P] Create placeholder files for new components in src/components/domain/game/
+- [X] T004 [P] Create placeholder files for new hooks in src/hooks/
+- [X] T005 [P] Create placeholder files for new use cases in src/server/application/use-cases/games/
+- [X] T006 [P] Create test file structure in tests/unit/ and tests/component/
 
 ## Phase 2: Foundational (Shared Infrastructure)
 
@@ -27,12 +27,12 @@ Transform presenter registration from a 2-step process to a single-form submissi
 
 ### Tasks
 
-- [ ] T007 Define AddPresenterWithEpisodesInput type in src/types/presenter.ts
-- [ ] T008 Define AddPresenterWithEpisodesOutput type in src/types/presenter.ts
-- [ ] T009 Create AddPresenterWithEpisodesSchema in src/server/domain/schemas/gameSchemas.ts with cross-field validation
-- [ ] T010 Write unit tests for AddPresenterWithEpisodesSchema validation in tests/unit/schemas/AddPresenterWithEpisodesSchema.test.ts
-- [ ] T011 Add createPresenterWithEpisodes method to IGameRepository interface
-- [ ] T012 Implement createPresenterWithEpisodes in InMemoryGameRepository with atomic save logic
+- [X] T007 Define AddPresenterWithEpisodesInput type in src/types/presenter.ts
+- [X] T008 Define AddPresenterWithEpisodesOutput type in src/types/presenter.ts
+- [X] T009 Create AddPresenterWithEpisodesSchema in src/server/domain/schemas/gameSchemas.ts with cross-field validation
+- [X] T010 Write unit tests for AddPresenterWithEpisodesSchema validation in tests/unit/schemas/AddPresenterWithEpisodesSchema.test.ts
+- [X] T011 Add createPresenterWithEpisodes method to IGameRepository interface
+- [X] T012 Implement createPresenterWithEpisodes in InMemoryGameRepository with atomic save logic
 
 ## Phase 3: User Story 1 - Single-Form Presenter Registration (P1) [US1]
 
@@ -42,21 +42,21 @@ Transform presenter registration from a 2-step process to a single-form submissi
 
 ### Implementation Tasks
 
-- [ ] T013 [US1] Create AddPresenterWithEpisodes use case in src/server/application/use-cases/games/AddPresenterWithEpisodes.ts
-- [ ] T014 [US1] Write unit tests for AddPresenterWithEpisodes use case in tests/unit/use-cases/AddPresenterWithEpisodes.test.ts
-- [ ] T015 [US1] Create addPresenterWithEpisodesAction server action in src/app/actions/presenter.ts
-- [ ] T016 [US1] Create usePresenterWithEpisodesForm hook in src/hooks/usePresenterWithEpisodesForm.ts
-- [ ] T017 [US1] Write unit tests for usePresenterWithEpisodesForm hook in tests/unit/hooks/usePresenterWithEpisodesForm.test.ts
-- [ ] T018 [US1] Create PresenterWithEpisodesForm component in src/components/domain/game/PresenterWithEpisodesForm.tsx
-- [ ] T019 [US1] Style form with Tailwind CSS (vertical layout, episode sections, submit button)
-- [ ] T020 [US1] Implement form validation error display (inline + form-level errors)
-- [ ] T021 [US1] Implement success message display with auto-dismiss after 3 seconds
+- [X] T013 [US1] Create AddPresenterWithEpisodes use case in src/server/application/use-cases/games/AddPresenterWithEpisodes.ts
+- [X] T014 [US1] Write unit tests for AddPresenterWithEpisodes use case in tests/unit/use-cases/AddPresenterWithEpisodes.test.ts
+- [X] T015 [US1] Create addPresenterWithEpisodesAction server action in src/app/actions/presenter.ts
+- [X] T016 [US1] Create usePresenterWithEpisodesForm hook in src/hooks/usePresenterWithEpisodesForm.ts
+- [X] T017 [US1] Write unit tests for usePresenterWithEpisodesForm hook in tests/unit/hooks/usePresenterWithEpisodesForm.test.ts
+- [X] T018 [US1] Create PresenterWithEpisodesForm component in src/components/domain/game/PresenterWithEpisodesForm.tsx
+- [X] T019 [US1] Style form with Tailwind CSS (vertical layout, episode sections, submit button)
+- [X] T020 [US1] Implement form validation error display (inline + form-level errors)
+- [X] T021 [US1] Implement success message display with auto-dismiss after 3 seconds
 - [ ] T022 [US1] Write component tests for PresenterWithEpisodesForm in tests/component/PresenterWithEpisodesForm.test.tsx
 - [ ] T023 [US1] Replace PresenterForm with PresenterWithEpisodesForm in PresenterManagementPage
-- [ ] T024 [US1] Add revalidatePath call to server action for cache update
-- [ ] T025 [US1] Test atomic save behavior (all-or-nothing)
-- [ ] T026 [US1] Test validation for exactly 1 lie marker requirement
-- [ ] T027 [US1] Run Biome formatting on all modified files
+- [X] T024 [US1] Add revalidatePath call to server action for cache update
+- [X] T025 [US1] Test atomic save behavior (all-or-nothing)
+- [X] T026 [US1] Test validation for exactly 1 lie marker requirement
+- [X] T027 [US1] Run Biome formatting on all modified files
 
 ## Phase 4: User Story 2 - Character Count and Validation Feedback (P2) [US2]
 
