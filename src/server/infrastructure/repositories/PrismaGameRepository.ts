@@ -2,9 +2,9 @@
 // Feature: 002-game-preparation
 // Implementation of IGameRepository using Prisma ORM for SQLite persistence
 
-import type { Episode } from '@/server/domain/entities/Episode';
+import { Episode } from '@/server/domain/entities/Episode';
 import { Game } from '@/server/domain/entities/Game';
-import type { Presenter } from '@/server/domain/entities/Presenter';
+import { Presenter } from '@/server/domain/entities/Presenter';
 import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
 import { GameId } from '@/server/domain/value-objects/GameId';
 import { GameStatus } from '@/server/domain/value-objects/GameStatus';
@@ -123,35 +123,121 @@ export class PrismaGameRepository implements IGameRepository {
    * Find all presenters for a game
    * @param gameId Game ID to find presenters for
    */
-  async findPresentersByGameId(_gameId: string): Promise<Presenter[]> {
-    // TODO: Implement presenter operations with Prisma
-    // For now, return empty array (will be implemented in future)
-    return [];
+  async findPresentersByGameId(gameId: string): Promise<Presenter[]> {
+    const presenters = await this.prisma.presenter.findMany({
+      where: { gameId },
+      include: {
+        episodes: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return presenters.map((presenter) => this.presenterToDomain(presenter));
   }
 
   /**
    * Find a single presenter by ID
    * @param presenterId Presenter ID to search for
    */
-  async findPresenterById(_presenterId: string): Promise<Presenter | null> {
-    // TODO: Implement presenter operations with Prisma
-    return null;
+  async findPresenterById(presenterId: string): Promise<Presenter | null> {
+    const presenter = await this.prisma.presenter.findUnique({
+      where: { id: presenterId },
+      include: {
+        episodes: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    return presenter ? this.presenterToDomain(presenter) : null;
   }
 
   /**
    * Add a presenter to a game
    * @param presenter Presenter entity to create
    */
-  async addPresenter(_presenter: Presenter): Promise<void> {
-    // TODO: Implement presenter operations with Prisma
+  async addPresenter(presenter: Presenter): Promise<void> {
+    const presenterData = {
+      id: presenter.id,
+      gameId: presenter.gameId,
+      nickname: presenter.nickname,
+      createdAt: presenter.createdAt,
+    };
+
+    const episodesData = presenter.episodes.map((episode) => ({
+      id: episode.id,
+      presenterId: presenter.id,
+      text: episode.text,
+      isLie: episode.isLie,
+      createdAt: episode.createdAt,
+    }));
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.presenter.create({
+        data: presenterData,
+      });
+
+      if (episodesData.length > 0) {
+        await tx.episode.createMany({
+          data: episodesData,
+        });
+      }
+    });
+  }
+
+  /**
+   * Create a presenter with episodes in atomic operation (all-or-nothing)
+   * @param presenter Presenter entity to create
+   * @param episodes Array of exactly 3 Episode entities
+   * @returns Created presenter with episodes for verification
+   */
+  async createPresenterWithEpisodes(presenter: Presenter, episodes: Episode[]): Promise<Presenter> {
+    const presenterData = {
+      id: presenter.id,
+      gameId: presenter.gameId,
+      nickname: presenter.nickname,
+      createdAt: presenter.createdAt,
+    };
+
+    const episodesData = episodes.map((episode) => ({
+      id: episode.id,
+      presenterId: presenter.id,
+      text: episode.text,
+      isLie: episode.isLie,
+      createdAt: episode.createdAt,
+    }));
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.presenter.create({
+        data: presenterData,
+      });
+
+      await tx.episode.createMany({
+        data: episodesData,
+      });
+    });
+
+    // Return the created presenter with episodes
+    return Presenter.create({
+      id: presenter.id,
+      gameId: presenter.gameId,
+      nickname: presenter.nickname,
+      episodes,
+      createdAt: presenter.createdAt,
+    });
   }
 
   /**
    * Remove a presenter from a game (cascade deletes episodes)
    * @param presenterId Presenter ID to delete
    */
-  async removePresenter(_presenterId: string): Promise<void> {
-    // TODO: Implement presenter operations with Prisma
+  async removePresenter(presenterId: string): Promise<void> {
+    // Delete presenter - cascade delete will handle episodes automatically
+    await this.prisma.presenter.delete({
+      where: { id: presenterId },
+    });
   }
 
   // Episode operations
@@ -160,37 +246,112 @@ export class PrismaGameRepository implements IGameRepository {
    * Find all episodes for a presenter
    * @param presenterId Presenter ID to find episodes for
    */
-  async findEpisodesByPresenterId(_presenterId: string): Promise<Episode[]> {
-    // TODO: Implement episode operations with Prisma
-    return [];
+  async findEpisodesByPresenterId(presenterId: string): Promise<Episode[]> {
+    const episodes = await this.prisma.episode.findMany({
+      where: { presenterId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return episodes.map((episode) => this.episodeToDomain(episode));
   }
 
   /**
    * Add an episode to a presenter
    * @param episode Episode entity to create
    */
-  async addEpisode(_episode: Episode): Promise<void> {
-    // TODO: Implement episode operations with Prisma
+  async addEpisode(episode: Episode): Promise<void> {
+    await this.prisma.episode.create({
+      data: {
+        id: episode.id,
+        presenterId: episode.presenterId,
+        text: episode.text,
+        isLie: episode.isLie,
+        createdAt: episode.createdAt,
+      },
+    });
   }
 
   /**
    * Remove an episode
    * @param episodeId Episode ID to delete
    */
-  async removeEpisode(_episodeId: string): Promise<void> {
-    // TODO: Implement episode operations with Prisma
+  async removeEpisode(episodeId: string): Promise<void> {
+    await this.prisma.episode.delete({
+      where: { id: episodeId },
+    });
   }
 
   /**
    * Update an episode
    * @param episode Episode entity with updated data
    */
-  async updateEpisode(_episode: Episode): Promise<void> {
-    // TODO: Implement episode operations with Prisma
+  async updateEpisode(episode: Episode): Promise<void> {
+    await this.prisma.episode.update({
+      where: { id: episode.id },
+      data: {
+        text: episode.text,
+        isLie: episode.isLie,
+      },
+    });
   }
 
   /**
-   * Maps Prisma model to domain entity
+   * Maps Prisma presenter with episodes to domain entity
+   */
+  private presenterToDomain(prismaPresenter: {
+    id: string;
+    gameId: string;
+    nickname: string;
+    createdAt: Date;
+    episodes: {
+      id: string;
+      presenterId: string;
+      text: string;
+      isLie: boolean;
+      createdAt: Date;
+    }[];
+  }): Presenter {
+    const episodes = prismaPresenter.episodes.map((episode) =>
+      Episode.create({
+        id: episode.id,
+        presenterId: episode.presenterId,
+        text: episode.text,
+        isLie: episode.isLie,
+        createdAt: episode.createdAt,
+      })
+    );
+
+    // Use createIncomplete to allow partial episode sets during creation
+    return Presenter.createIncomplete({
+      id: prismaPresenter.id,
+      gameId: prismaPresenter.gameId,
+      nickname: prismaPresenter.nickname,
+      episodes,
+      createdAt: prismaPresenter.createdAt,
+    });
+  }
+
+  /**
+   * Maps Prisma episode to domain entity
+   */
+  private episodeToDomain(prismaEpisode: {
+    id: string;
+    presenterId: string;
+    text: string;
+    isLie: boolean;
+    createdAt: Date;
+  }): Episode {
+    return Episode.create({
+      id: prismaEpisode.id,
+      presenterId: prismaEpisode.presenterId,
+      text: prismaEpisode.text,
+      isLie: prismaEpisode.isLie,
+      createdAt: prismaEpisode.createdAt,
+    });
+  }
+
+  /**
+   * Maps Prisma game model to domain entity
    */
   private toDomain(prismaGame: {
     id: string;

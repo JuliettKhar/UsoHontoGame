@@ -5,7 +5,6 @@
 // Server Actions for managing presenters and episodes
 
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { COOKIE_NAMES } from '@/lib/constants';
 import { getCookie } from '@/lib/cookies';
 import type { EpisodeWithLieDto } from '@/server/application/dto/EpisodeWithLieDto';
@@ -22,12 +21,7 @@ import {
   AddPresenterWithEpisodesSchema,
   RemovePresenterSchema,
 } from '@/server/domain/schemas/gameSchemas';
-import { InMemoryGameRepository } from '@/server/infrastructure/repositories/InMemoryGameRepository';
-
-// Helper to create repository instance
-function createRepository() {
-  return InMemoryGameRepository.getInstance();
-}
+import { createGameRepository } from '@/server/infrastructure/repositories';
 
 /**
  * Add Presenter Server Action
@@ -68,7 +62,7 @@ export async function addPresenterAction(
     }
 
     // Execute use case
-    const repository = createRepository();
+    const repository = createGameRepository();
     const useCase = new AddPresenter(repository);
 
     const result = await useCase.execute({
@@ -130,7 +124,7 @@ export async function removePresenterAction(
     }
 
     // Execute use case
-    const repository = createRepository();
+    const repository = createGameRepository();
     const useCase = new RemovePresenter(repository);
 
     await useCase.execute({
@@ -199,7 +193,7 @@ export async function addEpisodeAction(
     }
 
     // Execute use case
-    const repository = createRepository();
+    const repository = createGameRepository();
 
     // Get presenter to find gameId for revalidation
     const presenter = await repository.findPresenterById(validationResult.data.presenterId);
@@ -251,7 +245,7 @@ export async function getPresenterEpisodesAction(
     }
 
     // Execute use case
-    const repository = createRepository();
+    const repository = createGameRepository();
     const useCase = new GetPresenterEpisodes(repository);
 
     const result = await useCase.execute({
@@ -293,7 +287,7 @@ export async function getPresentersAction(
     }
 
     // Execute use case
-    const repository = createRepository();
+    const repository = createGameRepository();
     const useCase = new GetPresentersByGameId(repository);
 
     const result = await useCase.execute({
@@ -365,7 +359,7 @@ export async function addPresenterWithEpisodesAction(
     }
 
     // Execute use case
-    const repository = createRepository();
+    const repository = createGameRepository();
     const useCase = new AddPresenterWithEpisodes(repository);
 
     const result = await useCase.execute({
