@@ -2,9 +2,8 @@
 // Feature: 002-game-preparation
 // Presentational component for presenter and episode management
 
-import { EpisodeForm } from '@/components/domain/game/EpisodeForm';
-import { PresenterForm } from '@/components/domain/game/PresenterForm';
 import { PresenterList } from '@/components/domain/game/PresenterList';
+import { PresenterWithEpisodesForm } from '@/components/domain/game/PresenterWithEpisodesForm';
 import { usePresenterManagementPage } from './hooks/usePresenterManagementPage';
 import type { PresenterManagementPageProps } from './PresenterManagementPage.types';
 
@@ -73,43 +72,25 @@ export function PresenterManagementPage({ gameId }: PresenterManagementPageProps
           </div>
         )}
 
-        {/* Main Content: 2-column grid */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Left Column: Presenter Form & List */}
-          <div className="space-y-6">
-            <PresenterForm gameId={gameId} onPresenterAdded={handlePresenterAdded} />
-
-            <div>
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">プレゼンター一覧</h2>
-              <PresenterList
-                presenters={presenters}
-                gameId={gameId}
-                onPresenterRemoved={handlePresenterRemoved}
-                onPresenterSelected={handlePresenterSelected}
-              />
-            </div>
+        {/* Main Content: Single Column with New Form */}
+        <div className="space-y-6">
+          {/* New: Inline Episode Registration Form */}
+          <div>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">
+              プレゼンターとエピソードを登録
+            </h2>
+            <PresenterWithEpisodesForm gameId={gameId} onSuccess={handlePresenterAdded} />
           </div>
 
-          {/* Right Column: Episode Form */}
+          {/* Presenter List */}
           <div>
-            {selectedPresenter ? (
-              <EpisodeForm
-                presenterId={selectedPresenter.id}
-                presenterNickname={selectedPresenter.nickname}
-                hasLieEpisode={selectedPresenter.episodes.some((ep) => ep.isLie)}
-                currentEpisodeCount={selectedPresenter.episodes.length}
-                onEpisodeAdded={handleEpisodeAdded}
-              />
-            ) : (
-              <div className="rounded-lg border border-gray-200 bg-white p-6">
-                <h2 className="mb-4 text-lg font-semibold text-gray-900">エピソードを追加</h2>
-                <div className="rounded-lg bg-gray-50 p-8 text-center">
-                  <p className="text-gray-600">
-                    プレゼンターを選択してエピソードを追加してください
-                  </p>
-                </div>
-              </div>
-            )}
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">プレゼンター一覧</h2>
+            <PresenterList
+              presenters={presenters}
+              gameId={gameId}
+              onPresenterRemoved={handlePresenterRemoved}
+              onPresenterSelected={handlePresenterSelected}
+            />
           </div>
         </div>
 
@@ -133,7 +114,7 @@ export function PresenterManagementPage({ gameId }: PresenterManagementPageProps
                 {
                   presenters.filter(
                     (p) =>
-                      p.episodes.length === 3 && p.episodes.filter((ep) => ep.isLie).length === 1
+                      p.episodes?.length === 3 && p.episodes?.filter((ep) => ep.isLie).length === 1
                   ).length
                 }
               </p>
@@ -145,7 +126,10 @@ export function PresenterManagementPage({ gameId }: PresenterManagementPageProps
               <p className="text-2xl font-bold text-yellow-600">
                 {
                   presenters.filter(
-                    (p) => p.episodes.length < 3 || p.episodes.filter((ep) => ep.isLie).length !== 1
+                    (p) =>
+                      !p.episodes ||
+                      p.episodes.length < 3 ||
+                      p.episodes.filter((ep) => ep.isLie).length !== 1
                   ).length
                 }
               </p>

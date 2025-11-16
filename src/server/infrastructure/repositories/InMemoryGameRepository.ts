@@ -119,6 +119,25 @@ export class InMemoryGameRepository implements IGameRepository {
   }
 
   /**
+   * Create a presenter with episodes in atomic operation (all-or-nothing)
+   * @param presenter Presenter entity to create
+   * @param episodes Array of exactly 3 Episode entities
+   * @returns Created presenter with episodes for verification
+   */
+  async createPresenterWithEpisodes(presenter: Presenter, episodes: Episode[]): Promise<Presenter> {
+    // Store presenter
+    this.presenters.set(presenter.id, presenter);
+    
+    // Store all episodes
+    for (const episode of episodes) {
+      this.episodes.set(episode.id, episode);
+    }
+    
+    // Return the created presenter with episodes
+    return presenter;
+  }
+
+  /**
    * Removes a presenter from a game (cascade deletes episodes)
    * @param presenterId Presenter ID to delete
    */
@@ -131,6 +150,7 @@ export class InMemoryGameRepository implements IGameRepository {
     // Remove presenter
     this.presenters.delete(presenterId);
   }
+
 
   // Episode operations
 

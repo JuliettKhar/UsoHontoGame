@@ -3,6 +3,11 @@
 // EpisodeForm Component
 // Feature: 002-game-preparation
 // Form for adding episodes to presenters with lie marker
+//
+// @deprecated This component is deprecated as of feature 003-presenter-episode-inline.
+// Use PresenterWithEpisodesForm instead, which allows registering a presenter
+// with all 3 episodes in a single form submission.
+// This component remains for backward compatibility only.
 
 import { useState } from 'react';
 import { useEpisodeForm } from '@/hooks/useEpisodeForm';

@@ -63,10 +63,10 @@ describe('PresenterManagementPage', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
-  it('should render PresenterForm', () => {
+  it('should render PresenterWithEpisodesForm', () => {
     mockUsePresenterManagementPage.mockReturnValue(mockUsePresenterManagementPageReturn());
     render(<PresenterManagementPage gameId="test-game-id" />);
-    expect(screen.getByTestId('presenter-form')).toBeInTheDocument();
+    expect(screen.getByText(/プレゼンターとエピソードを登録/)).toBeInTheDocument();
   });
 
   it('should render PresenterList', () => {
@@ -75,32 +75,9 @@ describe('PresenterManagementPage', () => {
     expect(screen.getByTestId('presenter-list')).toBeInTheDocument();
   });
 
-  it('should show EpisodeForm when presenter is selected', () => {
-    const selectedPresenter = mockPresenterWithLieDto({
-      id: 'presenter-1',
-      nickname: 'Test Presenter',
-    });
-    mockUsePresenterManagementPage.mockReturnValue(
-      mockUsePresenterManagementPageReturn({
-        selectedPresenter,
-      })
-    );
-    render(<PresenterManagementPage gameId="test-game-id" />);
-    expect(screen.getByTestId('episode-form')).toBeInTheDocument();
-  });
-
-  it('should show placeholder when no presenter is selected', () => {
-    mockUsePresenterManagementPage.mockReturnValue(
-      mockUsePresenterManagementPageReturn({
-        selectedPresenter: undefined,
-      })
-    );
-    render(<PresenterManagementPage gameId="test-game-id" />);
-    expect(
-      screen.getByText('プレゼンターを選択してエピソードを追加してください')
-    ).toBeInTheDocument();
-    expect(screen.queryByTestId('episode-form')).not.toBeInTheDocument();
-  });
+  // Note: Tests for EpisodeForm and placeholder are removed as the UI no longer has conditional
+  // rendering based on selected presenter. The new UI uses PresenterWithEpisodesForm which
+  // allows inline episode registration without selecting a presenter first.
 
   it('should display summary section with presenter count', () => {
     const presenters = [mockPresenterWithLieDto({ id: '1' }), mockPresenterWithLieDto({ id: '2' })];
