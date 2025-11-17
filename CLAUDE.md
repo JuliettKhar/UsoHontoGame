@@ -6,7 +6,6 @@ Auto-generated from all feature plans. Last updated: 2025-11-11
 - TypeScript 5 (strict mode) + Next.js 16.0.1, React 19.2.0, Prisma 6.19.0, Zod 4.1.12 (002-game-preparation)
 - SQLite via Prisma (existing database at `prisma/dev.db`) (002-game-preparation)
 - TypeScript 5 with strict mode enabled + Next.js 16.0.1, React 19.2.0, Tailwind CSS v4, Zod 3.x for validation, nanoid 5.1.6 for ID generation (003-presenter-episode-inline)
-- InMemoryGameRepository (singleton pattern for MVP) (003-presenter-episode-inline)
 - TypeScript 5 (strict mode) + Next.js 16.0.1, React 19.2.0, Tailwind CSS v4, Zod 4.1.12 (004-status-transition)
 - SQLite via Prisma 6.19.0 (existing database at `prisma/dev.db`) (004-status-transition)
 
@@ -246,9 +245,8 @@ npm run check              # Lint and format with Biome
 - Connection string: `file:./dev.db` (relative to prisma directory)
 
 **Repository Pattern**:
-- Default: PrismaGameRepository (SQLite)
-- Fallback: InMemoryGameRepository (for testing)
-- Configuration: Set `REPOSITORY_TYPE=memory` to use in-memory storage
+- Uses PrismaGameRepository with SQLite persistence
+- Repository factory pattern for dependency injection
 
 ## Features Implemented
 
