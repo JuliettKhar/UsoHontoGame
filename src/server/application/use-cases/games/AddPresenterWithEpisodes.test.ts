@@ -28,10 +28,10 @@ describe('AddPresenterWithEpisodes', () => {
         ],
       });
 
-      expect(result.presenter).toBeDefined();
-      expect(result.presenter.nickname).toBe('テスト太郎');
-      expect(result.presenter.episodes.length).toBe(3);
-      expect(result.presenter.episodes.filter((ep) => ep.isLie).length).toBe(1);
+      await expect(result.presenter).toBeDefined();
+      await expect(result.presenter.nickname).toBe('テスト太郎');
+      await expect(result.presenter.episodes.length).toBe(3);
+      await expect(result.presenter.episodes.filter((ep) => ep.isLie).length).toBe(1);
     });
 
     it('should trim nickname whitespace', async () => {
@@ -45,7 +45,7 @@ describe('AddPresenterWithEpisodes', () => {
         ],
       });
 
-      expect(result.presenter.nickname).toBe('テスト太郎');
+      await expect(result.presenter.nickname).toBe('テスト太郎');
     });
 
     it('should persist presenter and episodes to repository', async () => {
@@ -60,10 +60,10 @@ describe('AddPresenterWithEpisodes', () => {
       });
 
       const presenters = await repository.findPresentersByGameId('game-123');
-      expect(presenters.length).toBe(1);
+      await expect(presenters.length).toBe(1);
 
       const episodes = await repository.findEpisodesByPresenterId(presenters[0].id);
-      expect(episodes.length).toBe(3);
+      await expect(episodes.length).toBe(3);
     });
 
     it('should handle max length values', async () => {
@@ -77,14 +77,14 @@ describe('AddPresenterWithEpisodes', () => {
         ],
       });
 
-      expect(result.presenter.nickname.length).toBe(50);
-      expect(result.presenter.episodes[0].text.length).toBe(1000);
+      await expect(result.presenter.nickname.length).toBe(50);
+      await expect(result.presenter.episodes[0].text.length).toBe(1000);
     });
   });
 
   describe('Nickname Validation', () => {
     it('should reject empty nickname', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: '',
@@ -98,7 +98,7 @@ describe('AddPresenterWithEpisodes', () => {
     });
 
     it('should reject whitespace-only nickname', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: '   ',
@@ -114,7 +114,7 @@ describe('AddPresenterWithEpisodes', () => {
 
   describe('Episodes Validation', () => {
     it('should reject < 3 episodes', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: 'テスト太郎',
@@ -127,7 +127,7 @@ describe('AddPresenterWithEpisodes', () => {
     });
 
     it('should reject > 3 episodes', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: 'テスト太郎',
@@ -142,7 +142,7 @@ describe('AddPresenterWithEpisodes', () => {
     });
 
     it('should reject empty episode text', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: 'テスト太郎',
@@ -156,7 +156,7 @@ describe('AddPresenterWithEpisodes', () => {
     });
 
     it('should reject episode text > 1000 chars', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: 'テスト太郎',
@@ -172,7 +172,7 @@ describe('AddPresenterWithEpisodes', () => {
 
   describe('Lie Marker Validation', () => {
     it('should reject if no lie marker', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: 'テスト太郎',
@@ -186,7 +186,7 @@ describe('AddPresenterWithEpisodes', () => {
     });
 
     it('should reject if multiple lie markers', async () => {
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-123',
           nickname: 'テスト太郎',
@@ -230,9 +230,9 @@ describe('AddPresenterWithEpisodes', () => {
         ],
       });
 
-      expect(firstPosition.presenter.episodes[0].isLie).toBe(true);
-      expect(middlePosition.presenter.episodes[1].isLie).toBe(true);
-      expect(lastPosition.presenter.episodes[2].isLie).toBe(true);
+      await expect(firstPosition.presenter.episodes[0].isLie).toBe(true);
+      await expect(middlePosition.presenter.episodes[1].isLie).toBe(true);
+      await expect(lastPosition.presenter.episodes[2].isLie).toBe(true);
     });
   });
 
@@ -252,7 +252,7 @@ describe('AddPresenterWithEpisodes', () => {
       }
 
       // 11th presenter should fail
-      expect(
+      await expect(
         useCase.execute({
           gameId: 'game-limited',
           nickname: 'presenter-11',
@@ -290,8 +290,8 @@ describe('AddPresenterWithEpisodes', () => {
         ],
       });
 
-      expect(result.presenter).toBeDefined();
-      expect((await repository.findPresentersByGameId('game-ok')).length).toBe(10);
+      await expect(result.presenter).toBeDefined();
+      await expect((await repository.findPresentersByGameId('game-ok')).length).toBe(10);
     });
   });
 
@@ -312,8 +312,8 @@ describe('AddPresenterWithEpisodes', () => {
       const presenters = await repository.findPresentersByGameId('game-atomic');
       const episodes = await repository.findEpisodesByPresenterId(result.presenter.id);
 
-      expect(presenters.length).toBe(1);
-      expect(episodes.length).toBe(3);
+      await expect(presenters.length).toBe(1);
+      await expect(episodes.length).toBe(3);
     });
   });
 });

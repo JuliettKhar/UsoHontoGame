@@ -293,12 +293,12 @@ describe('RemovePresenterSchema', () => {
     expect(RemovePresenterSchema.parse(data)).toEqual(data);
   });
 
-  it('should reject invalid presenter ID', () => {
+  it('should reject empty presenter ID', () => {
     expect(() =>
       RemovePresenterSchema.parse({
         gameId: validGameId,
-        presenterId: 'invalid',
+        presenterId: '',
       })
-    ).toThrow();
+    ).toThrow('プレゼンターIDが必要です');
   });
 });

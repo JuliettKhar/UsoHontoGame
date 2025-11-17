@@ -1,7 +1,7 @@
 // Component Tests: PresenterWithEpisodesForm
 // Feature: 003-presenter-episode-inline
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PresenterWithEpisodesForm } from '@/components/domain/game/PresenterWithEpisodesForm';
@@ -48,8 +48,8 @@ describe('PresenterWithEpisodesForm', () => {
     it('should render lie marker checkboxes', () => {
       render(<PresenterWithEpisodesForm {...defaultProps} />);
 
-      const checkboxes = screen.getAllByRole('checkbox');
-      expect(checkboxes).toHaveLength(3);
+      const radioButtons = screen.getAllByRole('radio');
+      expect(radioButtons).toHaveLength(3);
     });
   });
 
@@ -78,12 +78,12 @@ describe('PresenterWithEpisodesForm', () => {
       const user = userEvent.setup();
       render(<PresenterWithEpisodesForm {...defaultProps} />);
 
-      const checkboxes = screen.getAllByRole('checkbox');
-      const firstCheckbox = checkboxes[0];
+      const radioButtons = screen.getAllByRole('radio');
+      const firstRadio = radioButtons[0];
 
-      expect(firstCheckbox).not.toBeChecked();
-      await user.click(firstCheckbox);
-      expect(firstCheckbox).toBeChecked();
+      expect(firstRadio).not.toBeChecked();
+      await user.click(firstRadio);
+      expect(firstRadio).toBeChecked();
     });
 
     it('should update character counter for nickname', async () => {
@@ -157,20 +157,20 @@ describe('PresenterWithEpisodesForm', () => {
       const user = userEvent.setup();
       render(<PresenterWithEpisodesForm {...defaultProps} />);
 
-      const checkboxes = screen.getAllByRole('checkbox');
-      await user.click(checkboxes[0]);
-      expect(checkboxes[0]).toBeChecked();
+      const radioButtons = screen.getAllByRole('radio');
+      await user.click(radioButtons[0]);
+      expect(radioButtons[0]).toBeChecked();
 
       const clearButton = screen.getByRole('button', { name: /クリア/ });
       await user.click(clearButton);
 
-      expect(checkboxes[0]).not.toBeChecked();
+      expect(radioButtons[0]).not.toBeChecked();
     });
   });
 
   describe('Form Submission', () => {
     it('should be enabled when form is valid', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
       render(<PresenterWithEpisodesForm {...defaultProps} />);
 
       const submitButton = screen.getByRole('button', { name: /登録/ });
@@ -188,13 +188,13 @@ describe('PresenterWithEpisodesForm', () => {
 
       const nicknameInput = screen.getByPlaceholderText(/例：田中太郎/);
       const episodeInputs = screen.getAllByPlaceholderText(/エピソード.*の内容を入力してください/);
-      const checkboxes = screen.getAllByRole('checkbox');
+      const radioButtons = screen.getAllByRole('radio');
 
       await user.type(nicknameInput, 'テスト太郎');
       await user.type(episodeInputs[0], 'エピソード1');
       await user.type(episodeInputs[1], 'エピソード2');
       await user.type(episodeInputs[2], 'エピソード3');
-      await user.click(checkboxes[2]);
+      await user.click(radioButtons[2]);
 
       const submitButton = screen.getByRole('button', { name: /登録/ });
       await user.click(submitButton);
@@ -267,13 +267,13 @@ describe('PresenterWithEpisodesForm', () => {
 
       const nicknameInput = screen.getByPlaceholderText(/例：田中太郎/);
       const episodeInputs = screen.getAllByPlaceholderText(/エピソード.*の内容を入力してください/);
-      const checkboxes = screen.getAllByRole('checkbox');
+      const radioButtons = screen.getAllByRole('radio');
 
       await user.type(nicknameInput, 'テスト太郎');
       await user.type(episodeInputs[0], 'エピソード1');
       await user.type(episodeInputs[1], 'エピソード2');
       await user.type(episodeInputs[2], 'エピソード3');
-      await user.click(checkboxes[2]);
+      await user.click(radioButtons[2]);
 
       const submitButton = screen.getByRole('button', { name: /登録/ });
       await user.click(submitButton);
@@ -328,13 +328,13 @@ describe('PresenterWithEpisodesForm', () => {
 
       const nicknameInput = screen.getByPlaceholderText(/例：田中太郎/);
       const episodeInputs = screen.getAllByPlaceholderText(/エピソード.*の内容を入力してください/);
-      const checkboxes = screen.getAllByRole('checkbox');
+      const radioButtons = screen.getAllByRole('radio');
 
       await user.type(nicknameInput, 'テスト太郎');
       await user.type(episodeInputs[0], 'エピソード1');
       await user.type(episodeInputs[1], 'エピソード2');
       await user.type(episodeInputs[2], 'エピソード3');
-      await user.click(checkboxes[2]);
+      await user.click(radioButtons[2]);
 
       const submitButton = screen.getByRole('button', { name: /登録/ });
       await user.click(submitButton);
