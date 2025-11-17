@@ -7,17 +7,17 @@ import { Game } from '@/server/domain/entities/Game';
 import { NotFoundError } from '@/server/domain/errors/NotFoundError';
 import { GameId } from '@/server/domain/value-objects/GameId';
 import { GameStatus } from '@/server/domain/value-objects/GameStatus';
-import { InMemoryGameRepository } from '@/server/infrastructure/repositories/InMemoryGameRepository';
+import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
+import { createMockGameRepository } from '../../../../../tests/utils/mockRepositories';
 
 describe('DeleteGame', () => {
-  let repository: InMemoryGameRepository;
+  let repository: IGameRepository;
   let useCase: DeleteGame;
   const creatorId = 'creator-session-123';
   const otherUserId = 'other-session-456';
 
   beforeEach(() => {
-    repository = InMemoryGameRepository.getInstance();
-    repository.clear();
+    repository = createMockGameRepository();
     useCase = new DeleteGame(repository);
   });
 

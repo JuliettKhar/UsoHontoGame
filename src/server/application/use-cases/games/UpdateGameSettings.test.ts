@@ -8,17 +8,17 @@ import { NotFoundError } from '@/server/domain/errors/NotFoundError';
 import { ValidationError } from '@/server/domain/errors/ValidationError';
 import { GameId } from '@/server/domain/value-objects/GameId';
 import { GameStatus } from '@/server/domain/value-objects/GameStatus';
-import { InMemoryGameRepository } from '@/server/infrastructure/repositories/InMemoryGameRepository';
+import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
+import { createMockGameRepository } from '../../../../../tests/utils/mockRepositories';
 
 describe('UpdateGameSettings', () => {
-  let repository: InMemoryGameRepository;
+  let repository: IGameRepository;
   let useCase: UpdateGameSettings;
   const creatorId = 'creator-session-123';
   const otherUserId = 'other-session-456';
 
   beforeEach(() => {
-    repository = InMemoryGameRepository.getInstance();
-    repository.clear();
+    repository = createMockGameRepository();
     useCase = new UpdateGameSettings(repository);
   });
 

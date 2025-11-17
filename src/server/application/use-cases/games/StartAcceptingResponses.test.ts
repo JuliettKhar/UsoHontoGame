@@ -12,15 +12,15 @@ import { NotFoundError } from '@/server/domain/errors/NotFoundError';
 import { ValidationError } from '@/server/domain/errors/ValidationError';
 import { GameId } from '@/server/domain/value-objects/GameId';
 import { GameStatus } from '@/server/domain/value-objects/GameStatus';
-import { InMemoryGameRepository } from '@/server/infrastructure/repositories/InMemoryGameRepository';
+import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
+import { createMockGameRepository } from '../../../../../tests/utils/mockRepositories';
 
 describe('StartAcceptingResponses Use Case', () => {
-  let repository: InMemoryGameRepository;
+  let repository: IGameRepository;
   let useCase: StartAcceptingResponses;
 
   beforeEach(() => {
-    repository = InMemoryGameRepository.getInstance();
-    repository.clear();
+    repository = createMockGameRepository();
     useCase = new StartAcceptingResponses(repository);
   });
 
@@ -148,7 +148,7 @@ describe('StartAcceptingResponses Use Case', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should allow transition when some presenters are incomplete but at least one is complete', async () => {
+    it('should reject transition when some presenters are incomplete even if others are complete', async () => {
       // Given: Game with 1 complete and 1 incomplete presenter
       const gameId = '550e8400-e29b-41d4-a716-446655440003';
       const game = new Game(
@@ -206,11 +206,11 @@ describe('StartAcceptingResponses Use Case', () => {
         );
       }
 
-      // When
-      const result = await useCase.execute({ gameId });
-
-      // Then
-      expect(result.success).toBe(true);
+      // When/Then - ALL presenters must be complete, so this should fail
+      await expect(useCase.execute({ gameId })).rejects.toThrow(ValidationError);
+      await expect(useCase.execute({ gameId })).rejects.toThrow(
+        '出題者 Incomplete のエピソードが不完全です（2/3個）'
+      );
     });
   });
 
@@ -275,7 +275,7 @@ describe('StartAcceptingResponses Use Case', () => {
       // When/Then
       await expect(useCase.execute({ gameId })).rejects.toThrow(ValidationError);
       await expect(useCase.execute({ gameId })).rejects.toThrow(
-        '3つのエピソード（1つのウソを含む）を登録している必要があります'
+        '出題者 Incomplete のエピソードが不完全です（2/3個）'
       );
     });
 
