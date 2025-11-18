@@ -5,9 +5,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { DeleteGame } from '@/server/application/use-cases/games/DeleteGame';
 import { Game } from '@/server/domain/entities/Game';
 import { NotFoundError } from '@/server/domain/errors/NotFoundError';
+import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
 import { GameId } from '@/server/domain/value-objects/GameId';
 import { GameStatus } from '@/server/domain/value-objects/GameStatus';
-import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
 import { createMockGameRepository } from '../../../../../tests/utils/mockRepositories';
 
 describe('DeleteGame', () => {

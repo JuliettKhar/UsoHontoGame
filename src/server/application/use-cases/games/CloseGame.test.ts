@@ -7,9 +7,9 @@ import { CloseGame } from '@/server/application/use-cases/games/CloseGame';
 import { Game } from '@/server/domain/entities/Game';
 import { InvalidStatusTransitionError } from '@/server/domain/errors/InvalidStatusTransitionError';
 import { NotFoundError } from '@/server/domain/errors/NotFoundError';
+import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
 import { GameId } from '@/server/domain/value-objects/GameId';
 import { GameStatus } from '@/server/domain/value-objects/GameStatus';
-import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
 import { createMockGameRepository } from '../../../../../tests/utils/mockRepositories';
 
 describe('CloseGame Use Case', () => {

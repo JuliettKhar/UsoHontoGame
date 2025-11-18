@@ -84,7 +84,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findEpisodesByPresenterId.mockResolvedValue(game.presenters[0].episodes);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '出題中', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '出題中',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(true);
@@ -105,7 +109,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findPresentersByGameId.mockResolvedValue([]);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '出題中', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '出題中',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(false);
@@ -137,7 +145,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findEpisodesByPresenterId.mockResolvedValue(game.presenters[0].episodes);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '出題中', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '出題中',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(false);
@@ -170,7 +182,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findEpisodesByPresenterId.mockResolvedValue(game.presenters[0].episodes);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '出題中', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '出題中',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(false);
@@ -205,7 +221,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findEpisodesByPresenterId.mockResolvedValue(game.presenters[0].episodes);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '出題中', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '出題中',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(false);
@@ -228,7 +248,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findById.mockResolvedValue(game);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '締切', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '締切',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(true);
@@ -249,7 +273,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findById.mockResolvedValue(game);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '出題中', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '出題中',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(false);
@@ -269,7 +297,11 @@ describe('ValidateStatusTransition', () => {
 
       // Act & Assert
       await expect(
-        validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '準備中' as any, 'session-123')
+        validateStatusTransition.execute(
+          '550e8400-e29b-41d4-a716-446655440001',
+          '準備中' as any,
+          'session-123'
+        )
       ).rejects.toThrow(StatusTransitionError);
     });
   });
@@ -286,7 +318,11 @@ describe('ValidateStatusTransition', () => {
       mockGameRepository.findById.mockResolvedValue(game);
 
       // Act
-      const result = await validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440001', '出題中', 'session-123');
+      const result = await validateStatusTransition.execute(
+        '550e8400-e29b-41d4-a716-446655440001',
+        '出題中',
+        'session-123'
+      );
 
       // Assert
       expect(result.canTransition).toBe(false);
@@ -303,7 +339,11 @@ describe('ValidateStatusTransition', () => {
 
       // Act & Assert
       await expect(
-        validateStatusTransition.execute('550e8400-e29b-41d4-a716-446655440999', '出題中', 'session-123')
+        validateStatusTransition.execute(
+          '550e8400-e29b-41d4-a716-446655440999',
+          '出題中',
+          'session-123'
+        )
       ).rejects.toThrow('ゲームが見つかりません');
     });
   });

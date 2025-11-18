@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { AddPresenterWithEpisodes } from '@/server/application/use-cases/games/AddPresenterWithEpisodes';
 import { CloseGame } from '@/server/application/use-cases/games/CloseGame';
@@ -8,7 +9,6 @@ import type { IGameRepository } from '@/server/domain/repositories/IGameReposito
 import { GameId } from '@/server/domain/value-objects/GameId';
 import { PrismaGameRepository } from '@/server/infrastructure/repositories/PrismaGameRepository';
 import { createTestDatabase, type TestDatabase } from '../utils/test-database';
-import { nanoid } from 'nanoid';
 
 describe('Status Transition Integration', () => {
   let testDb: TestDatabase;
@@ -56,7 +56,7 @@ describe('Status Transition Integration', () => {
         ],
         sessionId,
       });
-      
+
       console.log('Presenter result:', presenterResult);
 
       // Debug: Check if presenters were added
@@ -126,7 +126,7 @@ describe('Status Transition Integration', () => {
       // Arrange: Add presenter with 3 episodes but no lies
       const { Presenter } = await import('@/server/domain/entities/Presenter');
       const { Episode } = await import('@/server/domain/entities/Episode');
-      
+
       const presenterId = nanoid();
       const episodes = [
         Episode.create({
@@ -137,7 +137,7 @@ describe('Status Transition Integration', () => {
           createdAt: new Date(),
         }),
         Episode.create({
-          id: nanoid(), 
+          id: nanoid(),
           presenterId,
           text: 'Truth 2',
           isLie: false,
@@ -145,7 +145,7 @@ describe('Status Transition Integration', () => {
         }),
         Episode.create({
           id: nanoid(),
-          presenterId, 
+          presenterId,
           text: 'Truth 3',
           isLie: false,
           createdAt: new Date(),
@@ -159,7 +159,7 @@ describe('Status Transition Integration', () => {
         episodes,
         createdAt: new Date(),
       });
-      
+
       await repository.addPresenter(presenter);
 
       // Act: Try to start the game

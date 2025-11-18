@@ -66,9 +66,9 @@ describe('Status Transition Server Actions', () => {
 
     // Setup mocks
     const { createGameRepository } = await import('@/server/infrastructure/repositories');
-    const {
-      SessionServiceContainer,
-    } = await import('@/server/infrastructure/di/SessionServiceContainer');
+    const { SessionServiceContainer } = await import(
+      '@/server/infrastructure/di/SessionServiceContainer'
+    );
 
     vi.mocked(createGameRepository).mockReturnValue(mockRepository);
     vi.mocked(SessionServiceContainer.getSessionService).mockReturnValue(mockSessionService);
@@ -191,7 +191,11 @@ describe('Status Transition Server Actions', () => {
 
       // Assert
       expect(result).toEqual({ success: true });
-      expect(mockValidateStatusTransition.execute).toHaveBeenCalledWith('game-123', '締切', 'session-123');
+      expect(mockValidateStatusTransition.execute).toHaveBeenCalledWith(
+        'game-123',
+        '締切',
+        'session-123'
+      );
       expect(mockCloseGame.execute).toHaveBeenCalledWith({ gameId: 'game-123' });
     });
 

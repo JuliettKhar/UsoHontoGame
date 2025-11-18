@@ -110,7 +110,7 @@ describe('PrismaGameRepository', () => {
       );
       const game2 = new Game(
         new GameId('550e8400-e29b-41d4-a716-446655440002'),
-        'Newer Game', 
+        'Newer Game',
         new GameStatus('出題中'),
         10,
         5,
