@@ -112,26 +112,26 @@ This is a full-stack Next.js application with Clean Architecture:
 
 ### Domain Components (TDD)
 
-- [ ] T035 [P] [US1] Write failing tests for EpisodeSelector in src/components/domain/answer/EpisodeSelector/EpisodeSelector.test.tsx (render episodes, highlight selection, onSelect callback)
-- [ ] T036 [P] [US1] Write failing tests for PresenterEpisodeList in src/components/domain/answer/PresenterEpisodeList/PresenterEpisodeList.test.tsx (render all presenters, integrate EpisodeSelector)
-- [ ] T037 [P] [US1] Write failing tests for GameAnswerForm in src/components/domain/answer/GameAnswerForm/GameAnswerForm.test.tsx (form state, validation, submission)
-- [ ] T038 [US1] Implement EpisodeSelector component in src/components/domain/answer/EpisodeSelector/index.tsx to pass T035 tests
-- [ ] T039 [US1] Implement PresenterEpisodeList component in src/components/domain/answer/PresenterEpisodeList/index.tsx to pass T036 tests
-- [ ] T040 [US1] Implement GameAnswerForm component in src/components/domain/answer/GameAnswerForm/index.tsx to pass T037 tests
+- [X] T035 [P] [US1] Write failing tests for EpisodeSelector in src/components/domain/answer/EpisodeSelector/EpisodeSelector.test.tsx (render episodes, highlight selection, onSelect callback)
+- [X] T036 [P] [US1] Write failing tests for PresenterEpisodeList in src/components/domain/answer/PresenterEpisodeList/PresenterEpisodeList.test.tsx (render all presenters, integrate EpisodeSelector)
+- [X] T037 [P] [US1] Write failing tests for GameAnswerForm in src/components/domain/answer/GameAnswerForm/GameAnswerForm.test.tsx (form state, validation, submission)
+- [X] T038 [US1] Implement EpisodeSelector component in src/components/domain/answer/EpisodeSelector/index.tsx to pass T035 tests
+- [X] T039 [US1] Implement PresenterEpisodeList component in src/components/domain/answer/PresenterEpisodeList/index.tsx to pass T036 tests
+- [X] T040 [US1] Implement GameAnswerForm component in src/components/domain/answer/GameAnswerForm/index.tsx to pass T037 tests
 
 ### Page Component (TDD)
 
-- [ ] T041 [US1] Write failing tests for AnswerSubmissionPage in src/components/pages/AnswerSubmissionPage/AnswerSubmissionPage.test.tsx (loading, error, form rendering, submit)
-- [ ] T042 [US1] Create AnswerSubmissionPage types in src/components/pages/AnswerSubmissionPage/AnswerSubmissionPage.types.ts
-- [ ] T043 [US1] Implement AnswerSubmissionPage in src/components/pages/AnswerSubmissionPage/index.tsx to pass T041 tests
+- [X] T041 [US1] Write failing tests for AnswerSubmissionPage in src/components/pages/AnswerSubmissionPage/AnswerSubmissionPage.test.tsx (loading, error, form rendering, submit)
+- [X] T042 [US1] Create AnswerSubmissionPage types in src/components/pages/AnswerSubmissionPage/AnswerSubmissionPage.types.ts
+- [X] T043 [US1] Implement AnswerSubmissionPage in src/components/pages/AnswerSubmissionPage/index.tsx to pass T041 tests
 
 ### Next.js Page Wrapper
 
-- [ ] T044 [US1] Create answer page route in src/app/games/[id]/answer/page.tsx (thin wrapper, validate access, delegate to AnswerSubmissionPage)
+- [X] T044 [US1] Create answer page route in src/app/games/[id]/answer/page.tsx (thin wrapper, validate access, delegate to AnswerSubmissionPage)
 
 ### TOP Page Integration
 
-- [ ] T045 [US1] Update TOP page game list query to filter by status='出題中' (show only published games to participants)
+- [X] T045 [US1] Update TOP page game list query to filter by status='出題中' (show only published games to participants) - Already implemented via findActiveGamesWithPagination
 
 ### Integration Tests
 
