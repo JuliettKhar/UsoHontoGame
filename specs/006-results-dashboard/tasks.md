@@ -67,7 +67,7 @@
 - [X] T018 [US1] Format code with Biome: npx biome format --write .
 - [X] T019 [US1] Run all tests to verify User Story 1: npm test
 - [ ] T020 [US1] Manual testing: Create game, navigate to dashboard, verify polling works
-- [ ] T021 [US1] Commit User Story 1: git add . && git commit -m "feat(US1): implement response status tracking dashboard"
+- [X] T021 [US1] Commit User Story 1: git add . && git commit -m "feat(US1): implement response status tracking dashboard"
 
 **Checkpoint**: User Story 1 complete and independently testable. Moderators can track response submissions in real-time.
 
