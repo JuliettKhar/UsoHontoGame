@@ -399,6 +399,65 @@ export class PrismaGameRepository implements IGameRepository {
   }
 
   /**
+   * Find games with status filter (active and/or closed)
+   * Feature: 007-game-closure
+   */
+  async findGamesWithStatusFilter(params: {
+    limit: number;
+    skip: number;
+    statusFilter: '出題中' | '締切' | 'すべて';
+  }): Promise<{
+    games: Array<{
+      id: string;
+      title: string;
+      createdAt: Date;
+      playerCount: number;
+      playerLimit: number | null;
+      creatorId: string;
+      status: '出題中' | '締切';
+    }>;
+    total: number;
+  }> {
+    // Determine status condition based on filter
+    const statusCondition =
+      params.statusFilter === 'すべて'
+        ? { status: { in: ['出題中', '締切'] } }
+        : { status: params.statusFilter };
+
+    // Fetch games with actual participation count
+    const games = await this.prisma.game.findMany({
+      where: statusCondition,
+      orderBy: { createdAt: 'desc' },
+      take: params.limit,
+      skip: params.skip,
+      include: {
+        _count: {
+          select: { participations: true },
+        },
+      },
+    });
+
+    // Get total count
+    const total = await this.prisma.game.count({
+      where: statusCondition,
+    });
+
+    // Map to expected format
+    return {
+      games: games.map((game) => ({
+        id: game.id,
+        title: game.name || 'Untitled Game',
+        createdAt: game.createdAt,
+        playerCount: game._count.participations,
+        playerLimit: game.maxPlayers,
+        creatorId: game.creatorId,
+        status: game.status as '出題中' | '締切',
+      })),
+      total,
+    };
+  }
+
+  /**
    * Maps Prisma game model to domain entity
    */
   private toDomain(prismaGame: {

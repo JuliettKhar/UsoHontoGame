@@ -136,4 +136,27 @@ export interface IGameRepository {
     }>;
     total: number;
   }>;
+
+  /**
+   * Find games with status filter (active and/or closed)
+   * Feature: 007-game-closure
+   * @param params Pagination and filter parameters
+   * @returns Games matching filter with pagination metadata
+   */
+  findGamesWithStatusFilter(params: {
+    limit: number;
+    skip: number;
+    statusFilter: '出題中' | '締切' | 'すべて';
+  }): Promise<{
+    games: Array<{
+      id: string;
+      title: string;
+      createdAt: Date;
+      playerCount: number;
+      playerLimit: number | null;
+      creatorId: string;
+      status: '出題中' | '締切';
+    }>;
+    total: number;
+  }>;
 }

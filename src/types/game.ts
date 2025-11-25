@@ -61,3 +61,19 @@ export interface ActiveGamesResponse {
   /** Total count of all active games */
   total: number;
 }
+
+/**
+ * Status filter options for TOP page
+ * Feature: 007-game-closure
+ */
+export type GameStatusFilter = '出題中' | '締切' | 'すべて';
+
+/**
+ * Game list item with status information
+ * Feature: 007-game-closure
+ * Extended from ActiveGameListItem to include status field
+ */
+export interface GameListItemWithStatus extends ActiveGameListItem {
+  /** Current game status */
+  status: '出題中' | '締切';
+}
