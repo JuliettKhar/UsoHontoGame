@@ -75,7 +75,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Update GetResponseStatus use case to include game status and shouldContinuePolling in src/server/application/use-cases/results/GetResponseStatus.ts
+- [X] T016 [US3] Update GetResponseStatus use case to include game status and shouldContinuePolling in src/server/application/use-cases/results/GetResponseStatus.ts
 - [ ] T017 [US3] Update dashboard API route to return game status in src/app/api/games/[gameId]/dashboard/route.ts
 - [ ] T018 [US3] Update useResponseStatus hook to stop polling when game is closed in src/components/pages/ResponseStatusPage/hooks/useResponseStatus.ts
 - [ ] T019 [US3] Update ResponseStatusPage to show "ゲーム終了" indicator for closed games in src/components/pages/ResponseStatusPage/index.tsx
