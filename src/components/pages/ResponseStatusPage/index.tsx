@@ -37,10 +37,10 @@ export function ResponseStatusPage({ gameId, initialData }: ResponseStatusPagePr
         {/* Header */}
         <div className="mb-6">
           <a
-            href={`/games/${gameId}`}
+            href="/"
             className="mb-4 inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900"
           >
-            ← ゲーム詳細に戻る
+            ← TOPに戻る
           </a>
           <div className="flex items-center justify-between">
             <div>
