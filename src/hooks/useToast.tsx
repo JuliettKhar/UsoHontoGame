@@ -33,6 +33,10 @@ interface UseToastReturn {
 export function useToast(): UseToastReturn {
   const [toasts, setToasts] = useState<ToastProps[]>([]);
 
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
   const addToast = useCallback(
     (options: AddToastOptions): string => {
       const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -56,10 +60,6 @@ export function useToast(): UseToastReturn {
     },
     [removeToast]
   );
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
 
   const clearAllToasts = useCallback(() => {
     setToasts([]);

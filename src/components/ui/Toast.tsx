@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { animations } from '@/lib/animations';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
@@ -32,6 +32,13 @@ export function Toast({ id, type, title, message, duration = 4000, onClose }: To
   const [isVisible, setIsVisible] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
+  const handleClose = useCallback(() => {
+    setIsRemoving(true);
+    setTimeout(() => {
+      onClose(id);
+    }, 300);
+  }, [id, onClose]);
+
   useEffect(() => {
     // Animate in
     const showTimer = setTimeout(() => setIsVisible(true), 100);
@@ -46,13 +53,6 @@ export function Toast({ id, type, title, message, duration = 4000, onClose }: To
       clearTimeout(hideTimer);
     };
   }, [duration, handleClose]);
-
-  const handleClose = () => {
-    setIsRemoving(true);
-    setTimeout(() => {
-      onClose(id);
-    }, 300);
-  };
 
   const getToastConfig = (type: ToastType) => {
     switch (type) {
