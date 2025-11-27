@@ -7,17 +7,21 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useActiveGames } from './useActiveGames';
 
-// Mock the server action
-vi.mock('@/app/actions/game', () => ({
-  getActiveGamesAction: vi.fn(),
-}));
+// Mock global fetch
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
-import { getActiveGamesAction } from '@/app/actions/game';
-
-const mockGetActiveGamesAction = getActiveGamesAction as Mock;
+// Helper to create mock fetch response
+function createMockResponse(data: unknown, ok = true) {
+  return Promise.resolve({
+    ok,
+    json: () => Promise.resolve(data),
+    status: ok ? 200 : 400,
+  } as Response);
+}
 
 describe('useActiveGames', () => {
   let queryClient: QueryClient;
@@ -52,13 +56,14 @@ describe('useActiveGames', () => {
         },
       ];
 
-      mockGetActiveGamesAction.mockResolvedValue({
-        success: true,
-        games: mockGames,
-        hasMore: false,
-        nextCursor: null,
-        total: 1,
-      });
+      mockFetch.mockReturnValueOnce(
+        createMockResponse({
+          games: mockGames,
+          hasMore: false,
+          nextCursor: null,
+          total: 1,
+        })
+      );
 
       const { result } = renderHook(() => useActiveGames(), { wrapper });
 
@@ -70,7 +75,7 @@ describe('useActiveGames', () => {
 
       expect(result.current.games).toEqual(mockGames);
       expect(result.current.error).toBeNull();
-      expect(mockGetActiveGamesAction).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
     it('should configure refetch interval in query options', async () => {
@@ -85,13 +90,14 @@ describe('useActiveGames', () => {
         },
       ];
 
-      mockGetActiveGamesAction.mockResolvedValue({
-        success: true,
-        games: mockGames,
-        hasMore: false,
-        nextCursor: null,
-        total: 1,
-      });
+      mockFetch.mockReturnValueOnce(
+        createMockResponse({
+          games: mockGames,
+          hasMore: false,
+          nextCursor: null,
+          total: 1,
+        })
+      );
 
       const { result } = renderHook(() => useActiveGames(), { wrapper });
 
@@ -106,13 +112,14 @@ describe('useActiveGames', () => {
     });
 
     it('should accept custom refetch interval option', async () => {
-      mockGetActiveGamesAction.mockResolvedValue({
-        success: true,
-        games: [],
-        hasMore: false,
-        nextCursor: null,
-        total: 0,
-      });
+      mockFetch.mockReturnValueOnce(
+        createMockResponse({
+          games: [],
+          hasMore: false,
+          nextCursor: null,
+          total: 0,
+        })
+      );
 
       const customInterval = 10000; // 10 seconds
       const { result } = renderHook(() => useActiveGames({ refetchInterval: customInterval }), {
@@ -124,7 +131,7 @@ describe('useActiveGames', () => {
       });
 
       expect(result.current.games).toEqual([]);
-      expect(mockGetActiveGamesAction).toHaveBeenCalled();
+      expect(mockFetch).toHaveBeenCalled();
     });
   });
 
@@ -142,13 +149,14 @@ describe('useActiveGames', () => {
         },
       ];
 
-      mockGetActiveGamesAction.mockResolvedValue({
-        success: true,
-        games: mockGames,
-        hasMore: false,
-        nextCursor: null,
-        total: 1,
-      });
+      mockFetch.mockReturnValueOnce(
+        createMockResponse({
+          games: mockGames,
+          hasMore: false,
+          nextCursor: null,
+          total: 1,
+        })
+      );
 
       const { result } = renderHook(() => useActiveGames(), { wrapper });
 
@@ -173,13 +181,14 @@ describe('useActiveGames', () => {
         },
       ];
 
-      mockGetActiveGamesAction.mockResolvedValue({
-        success: true,
-        games: initialGames,
-        hasMore: false,
-        nextCursor: null,
-        total: 1,
-      });
+      mockFetch.mockReturnValueOnce(
+        createMockResponse({
+          games: initialGames,
+          hasMore: false,
+          nextCursor: null,
+          total: 1,
+        })
+      );
 
       const { result } = renderHook(() => useActiveGames(), { wrapper });
 
@@ -200,11 +209,15 @@ describe('useActiveGames', () => {
   // Additional tests
   describe('error handling', () => {
     it('should handle fetch errors and return empty array', async () => {
-      mockGetActiveGamesAction.mockResolvedValue({
-        success: false,
-        error: 'FETCH_FAILED',
-        message: 'Failed to fetch games',
-      });
+      mockFetch.mockReturnValueOnce(
+        createMockResponse(
+          {
+            error: 'FETCH_FAILED',
+            details: 'Failed to fetch games',
+          },
+          false
+        )
+      );
 
       const { result } = renderHook(() => useActiveGames(), { wrapper });
 
@@ -230,13 +243,14 @@ describe('useActiveGames', () => {
         },
       ];
 
-      mockGetActiveGamesAction.mockResolvedValue({
-        success: true,
-        games: mockGames,
-        hasMore: false,
-        nextCursor: null,
-        total: 1,
-      });
+      mockFetch.mockReturnValueOnce(
+        createMockResponse({
+          games: mockGames,
+          hasMore: false,
+          nextCursor: null,
+          total: 1,
+        })
+      );
 
       const { result } = renderHook(() => useActiveGames(), { wrapper });
 

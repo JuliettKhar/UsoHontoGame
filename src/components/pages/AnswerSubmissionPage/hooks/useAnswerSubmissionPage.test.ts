@@ -16,9 +16,18 @@ vi.mock('next/navigation', () => ({
   })),
 }));
 
-vi.mock('@/app/actions/presenter', () => ({
-  getPresentersAction: vi.fn(),
-}));
+// Mock global fetch for presenter fetching
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
+
+// Helper to create mock fetch response
+function createMockResponse(data: unknown, ok = true) {
+  return Promise.resolve({
+    ok,
+    json: () => Promise.resolve(data),
+    status: ok ? 200 : 400,
+  } as Response);
+}
 
 vi.mock('@/app/actions/answers', () => ({
   submitAnswerAction: vi.fn(),
@@ -107,8 +116,7 @@ describe('useAnswerSubmissionPage', () => {
 
   describe('Initial State', () => {
     it('should start in loading state', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockReturnValue(new Promise(() => {})); // Never resolves
+      mockFetch.mockReturnValueOnce(new Promise(() => {})); // Never resolves
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -118,8 +126,7 @@ describe('useAnswerSubmissionPage', () => {
     });
 
     it('should have no errors initially', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockReturnValue(new Promise(() => {}));
+      mockFetch.mockReturnValueOnce(new Promise(() => {}));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -129,25 +136,23 @@ describe('useAnswerSubmissionPage', () => {
 
   describe('Data Fetching', () => {
     it('should fetch presenters on mount', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
       await waitFor(() => {
-        expect(getPresentersAction).toHaveBeenCalledWith(mockGameId);
+        expect(mockFetch).toHaveBeenCalledWith(
+          `/api/games/${mockGameId}/presenters`,
+          expect.objectContaining({
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
       });
     });
 
     it('should transform presenters data after successful fetch', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -171,11 +176,7 @@ describe('useAnswerSubmissionPage', () => {
     });
 
     it('should set error state on fetch failure', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: false,
-        error: 'プレゼンターの取得に失敗しました',
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ error: 'プレゼンターの取得に失敗しました', details: 'プレゼンターの取得に失敗しました' }, false));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -188,8 +189,7 @@ describe('useAnswerSubmissionPage', () => {
     });
 
     it('should handle fetch exceptions', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockRejectedValue(new Error('Network error'));
+      mockFetch.mockReturnValueOnce(Promise.reject(new Error('Network error')));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -201,12 +201,11 @@ describe('useAnswerSubmissionPage', () => {
     });
 
     it('should not update state if component unmounts during fetch', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
       let resolveFetch: (value: any) => void;
       const fetchPromise = new Promise((resolve) => {
         resolveFetch = resolve;
       });
-      vi.mocked(getPresentersAction).mockReturnValue(fetchPromise as any);
+      mockFetch.mockReturnValueOnce(fetchPromise as any);
 
       const { result, unmount } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -230,11 +229,7 @@ describe('useAnswerSubmissionPage', () => {
 
   describe('FormData Structure', () => {
     it('should provide formData with correct structure after loading', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -255,11 +250,7 @@ describe('useAnswerSubmissionPage', () => {
 
   describe('Selection Management', () => {
     it('should update selections when handleSelectEpisode is called', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -277,11 +268,7 @@ describe('useAnswerSubmissionPage', () => {
     });
 
     it('should calculate isComplete correctly', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -307,13 +294,9 @@ describe('useAnswerSubmissionPage', () => {
 
   describe('Submission', () => {
     it('should submit answers successfully', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
       const { submitAnswerAction } = await import('@/app/actions/answers');
 
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       vi.mocked(submitAnswerAction).mockResolvedValue({
         success: true,
@@ -344,17 +327,13 @@ describe('useAnswerSubmissionPage', () => {
     });
 
     it('should redirect to top page on successful submission', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
       const { submitAnswerAction } = await import('@/app/actions/answers');
       const { useRouter } = await import('next/navigation');
 
       const mockPush = vi.fn();
       vi.mocked(useRouter).mockReturnValue({ push: mockPush });
 
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       vi.mocked(submitAnswerAction).mockResolvedValue({
         success: true,
@@ -385,13 +364,9 @@ describe('useAnswerSubmissionPage', () => {
     });
 
     it('should handle submission errors', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
       const { submitAnswerAction } = await import('@/app/actions/answers');
 
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       vi.mocked(submitAnswerAction).mockResolvedValue({
         success: false,
@@ -422,11 +397,7 @@ describe('useAnswerSubmissionPage', () => {
 
   describe('Reset Functionality', () => {
     it('should reset selections', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: true,
-        presenters: mockPresenterDtos,
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ presenters: mockPresenterDtos }));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 
@@ -454,11 +425,7 @@ describe('useAnswerSubmissionPage', () => {
 
   describe('Error Priority', () => {
     it('should show fetch error over submission error', async () => {
-      const { getPresentersAction } = await import('@/app/actions/presenter');
-      vi.mocked(getPresentersAction).mockResolvedValue({
-        success: false,
-        error: 'フェッチエラー',
-      });
+      mockFetch.mockReturnValueOnce(createMockResponse({ error: 'フェッチエラー', details: 'フェッチエラー' }, false));
 
       const { result } = renderHook(() => useAnswerSubmissionPage({ gameId: mockGameId }));
 

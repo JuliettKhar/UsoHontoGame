@@ -7,14 +7,18 @@ import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import type { PresenterWithLieDto } from '@/server/application/dto/PresenterWithLieDto';
 import { usePresenterManagementPage } from './usePresenterManagementPage';
 
-// Mock the server action
-vi.mock('@/app/actions/presenter', () => ({
-  getPresentersAction: vi.fn(),
-}));
+// Mock global fetch
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
-import { getPresentersAction } from '@/app/actions/presenter';
-
-const mockGetPresentersAction = getPresentersAction as Mock;
+// Helper to create mock fetch response
+function createMockResponse(data: unknown, ok = true) {
+  return Promise.resolve({
+    ok,
+    json: () => Promise.resolve(data),
+    status: ok ? 200 : 400,
+  } as Response);
+}
 
 describe('usePresenterManagementPage', () => {
   const mockPresenters: PresenterWithLieDto[] = [
@@ -62,7 +66,7 @@ describe('usePresenterManagementPage', () => {
 
   describe('Initial State', () => {
     it('should start with loading state', () => {
-      mockGetPresentersAction.mockResolvedValue({ success: true, presenters: [] });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: []  }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -70,7 +74,7 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should start with empty presenters array', () => {
-      mockGetPresentersAction.mockResolvedValue({ success: true, presenters: [] });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: []  }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -78,7 +82,7 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should start with no selected presenter', () => {
-      mockGetPresentersAction.mockResolvedValue({ success: true, presenters: [] });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: []  }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -87,7 +91,7 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should start with no error', () => {
-      mockGetPresentersAction.mockResolvedValue({ success: true, presenters: [] });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: []  }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -97,10 +101,8 @@ describe('usePresenterManagementPage', () => {
 
   describe('Load Presenters - Success', () => {
     it('should load presenters on mount', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -112,23 +114,24 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should call getPresentersAction with correct gameId', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters }));
 
       renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
       await waitFor(() => {
-        expect(mockGetPresentersAction).toHaveBeenCalledWith('game-123');
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/api/games/game-123/presenters',
+          expect.objectContaining({
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
       });
     });
 
     it('should set isLoading to false after loading', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -140,10 +143,7 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should clear any previous errors on successful load', async () => {
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: false,
-        error: 'エラー',
-      });
+      mockFetch.mockReturnValue(createMockResponse({ error: 'エラー', details: 'エラー' }, false));
 
       const { result, rerender } = renderHook(() =>
         usePresenterManagementPage({ gameId: 'game-123' })
@@ -153,10 +153,8 @@ describe('usePresenterManagementPage', () => {
         expect(result.current.error).toBe('エラー');
       });
 
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       await act(async () => {
         rerender();
@@ -164,16 +162,14 @@ describe('usePresenterManagementPage', () => {
 
       // The hook should still have the error since we didn't trigger a reload
       // Let's just verify the mock was called
-      expect(mockGetPresentersAction).toHaveBeenCalled();
+      expect(mockFetch).toHaveBeenCalled();
     });
 
     it('should handle empty presenter list', async () => {
       // Clear any previous mocks and set up fresh mock
-      mockGetPresentersAction.mockReset();
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: [],
-      });
+      mockFetch.mockClear();
+      mockFetch.mockReturnValue(createMockResponse({ presenters: [],
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -188,10 +184,7 @@ describe('usePresenterManagementPage', () => {
 
   describe('Load Presenters - Error', () => {
     it('should set error on failed load', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: false,
-        error: 'ゲームが見つかりません',
-      });
+      mockFetch.mockReturnValue(createMockResponse({ error: 'ゲームが見つかりません', details: 'ゲームが見つかりません' }, false));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -201,10 +194,7 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should set isLoading to false after error', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: false,
-        error: 'エラー',
-      });
+      mockFetch.mockReturnValue(createMockResponse({ error: 'エラー', details: 'エラー' }, false));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -214,10 +204,7 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should not update presenters on error', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: false,
-        error: 'エラー',
-      });
+      mockFetch.mockReturnValue(createMockResponse({ error: 'エラー', details: 'エラー' }, false));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -230,7 +217,7 @@ describe('usePresenterManagementPage', () => {
 
     it('should handle exception during load', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      mockGetPresentersAction.mockRejectedValue(new Error('Network error'));
+      mockFetch.mockReturnValueOnce(Promise.reject(new Error('Network error')));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -246,10 +233,8 @@ describe('usePresenterManagementPage', () => {
 
   describe('Handle Presenter Added', () => {
     it('should add presenter to local state', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: [mockPresenters[0]],
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: [mockPresenters[0]],
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -274,10 +259,8 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should not reload presenters from server', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: [mockPresenters[0]],
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: [mockPresenters[0]],
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -286,7 +269,7 @@ describe('usePresenterManagementPage', () => {
       });
 
       // Clear the mock call count
-      mockGetPresentersAction.mockClear();
+      mockFetch.mockClear();
 
       const newPresenter: PresenterWithLieDto = {
         id: 'presenter-3',
@@ -301,14 +284,12 @@ describe('usePresenterManagementPage', () => {
       });
 
       // Should not call the server action again
-      expect(mockGetPresentersAction).not.toHaveBeenCalled();
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('should maintain existing presenters', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -337,10 +318,8 @@ describe('usePresenterManagementPage', () => {
 
   describe('Handle Presenter Removed', () => {
     it('should reload presenters from server', async () => {
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -348,26 +327,28 @@ describe('usePresenterManagementPage', () => {
         expect(result.current.presenters).toHaveLength(2);
       });
 
-      mockGetPresentersAction.mockClear();
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: [mockPresenters[0]],
-      });
+      mockFetch.mockClear();
+      mockFetch.mockReturnValue(createMockResponse({ presenters: [mockPresenters[0]],
+       }));
 
       await act(async () => {
         result.current.handlePresenterRemoved();
       });
 
       await waitFor(() => {
-        expect(mockGetPresentersAction).toHaveBeenCalledWith('game-123');
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/api/games/game-123/presenters',
+          expect.objectContaining({
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
       });
     });
 
     it('should update presenters list after reload', async () => {
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -375,10 +356,8 @@ describe('usePresenterManagementPage', () => {
         expect(result.current.presenters).toHaveLength(2);
       });
 
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: [mockPresenters[0]],
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: [mockPresenters[0]],
+       }));
 
       await act(async () => {
         result.current.handlePresenterRemoved();
@@ -392,10 +371,8 @@ describe('usePresenterManagementPage', () => {
 
   describe('Handle Episode Added', () => {
     it('should reload presenters from server', async () => {
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -403,26 +380,28 @@ describe('usePresenterManagementPage', () => {
         expect(result.current.presenters).toHaveLength(2);
       });
 
-      mockGetPresentersAction.mockClear();
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockClear();
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       await act(async () => {
         result.current.handleEpisodeAdded();
       });
 
       await waitFor(() => {
-        expect(mockGetPresentersAction).toHaveBeenCalledWith('game-123');
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/api/games/game-123/presenters',
+          expect.objectContaining({
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
       });
     });
 
     it('should clear selected presenter', async () => {
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -437,10 +416,8 @@ describe('usePresenterManagementPage', () => {
 
       expect(result.current.selectedPresenterId).toBe('presenter-1');
 
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       // Add episode should clear selection
       await act(async () => {
@@ -455,10 +432,8 @@ describe('usePresenterManagementPage', () => {
 
   describe('Handle Presenter Selected', () => {
     it('should set selected presenter ID', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -474,10 +449,8 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should clear selection when null is passed', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -499,10 +472,8 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should allow changing selection', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -526,10 +497,8 @@ describe('usePresenterManagementPage', () => {
 
   describe('Selected Presenter (Derived Data)', () => {
     it('should return undefined when no presenter is selected', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -541,10 +510,8 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should return the selected presenter object', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -560,10 +527,8 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should update when selection changes', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -585,10 +550,8 @@ describe('usePresenterManagementPage', () => {
     });
 
     it('should return undefined for non-existent presenter ID', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
@@ -606,10 +569,8 @@ describe('usePresenterManagementPage', () => {
 
   describe('Reload on GameId Change', () => {
     it('should reload presenters when gameId changes', async () => {
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: [mockPresenters[0]],
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: [mockPresenters[0]],
+       }));
 
       const { result, rerender } = renderHook(
         ({ gameId }) => usePresenterManagementPage({ gameId }),
@@ -622,26 +583,28 @@ describe('usePresenterManagementPage', () => {
         expect(result.current.presenters).toHaveLength(1);
       });
 
-      mockGetPresentersAction.mockClear();
-      mockGetPresentersAction.mockResolvedValueOnce({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockClear();
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       rerender({ gameId: 'game-456' });
 
       await waitFor(() => {
-        expect(mockGetPresentersAction).toHaveBeenCalledWith('game-456');
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/api/games/game-456/presenters',
+          expect.objectContaining({
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
       });
     });
   });
 
   describe('Handler Functions', () => {
     it('should provide all required handlers', async () => {
-      mockGetPresentersAction.mockResolvedValue({
-        success: true,
-        presenters: mockPresenters,
-      });
+      mockFetch.mockReturnValue(createMockResponse({ presenters: mockPresenters,
+       }));
 
       const { result } = renderHook(() => usePresenterManagementPage({ gameId: 'game-123' }));
 
