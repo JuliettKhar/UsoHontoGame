@@ -9,13 +9,16 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { classNames } from '@/lib/design-system/classNames';
 
+export type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'outlined';
+export type BadgeSize = 'sm' | 'md' | 'lg';
+
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   /** Badge text content */
   children: ReactNode;
   /** Badge variant for different styles */
-  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'outlined';
+  variant?: BadgeVariant;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg';
+  size?: BadgeSize;
   /** Show dot indicator */
   dot?: boolean;
   /** Icon to display before text */

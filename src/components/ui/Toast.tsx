@@ -10,11 +10,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { animations } from '@/lib/animations';
 
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastVariant = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastProps {
   id: string;
-  type: ToastType;
+  type: ToastVariant;
   title?: string;
   message: string;
   duration?: number;
@@ -56,7 +56,7 @@ export function Toast({ id, type, title, message, duration = 4000, onClose }: To
     };
   }, [duration, handleClose]);
 
-  const getToastConfig = (type: ToastType) => {
+  const getToastConfig = (type: ToastVariant) => {
     switch (type) {
       case 'success':
         return {

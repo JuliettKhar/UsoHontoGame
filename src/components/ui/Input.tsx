@@ -96,7 +96,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     disabled && 'input-disabled bg-gray-100 dark:bg-gray-900 cursor-not-allowed opacity-60'
   );
 
-  const iconPaddingStyles = classNames(leftIcon && 'pl-10', rightIcon && 'pr-10');
+  const iconPaddingStyles = classNames(leftIcon ? 'pl-10' : '', rightIcon ? 'pr-10' : '');
 
   const inputClassName = classNames(
     baseStyles,

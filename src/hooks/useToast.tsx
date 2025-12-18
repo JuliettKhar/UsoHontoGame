@@ -7,10 +7,10 @@
 'use client';
 
 import { createContext, useCallback, useContext, useState } from 'react';
-import type { ToastProps, ToastType } from '@/components/ui/Toast';
+import type { ToastProps, ToastVariant } from '@/components/ui/Toast';
 
 interface AddToastOptions {
-  type: ToastType;
+  type: ToastVariant;
   title?: string;
   message: string;
   duration?: number;
@@ -130,43 +130,43 @@ export function useGlobalToast(): UseToastReturn {
  */
 export const statusTransitionToasts = {
   gameStarted: (title: string = 'ゲーム開始') => ({
-    type: 'success' as ToastType,
+    type: 'success' as ToastVariant,
     title,
     message: 'ゲームが正常に開始されました',
   }),
 
   gameClosed: (title: string = 'ゲーム締切') => ({
-    type: 'success' as ToastType,
+    type: 'success' as ToastVariant,
     title,
     message: 'ゲームが正常に締切されました',
   }),
 
   gameStartError: (error: string) => ({
-    type: 'error' as ToastType,
+    type: 'error' as ToastVariant,
     title: 'ゲーム開始エラー',
     message: error,
   }),
 
   gameCloseError: (error: string) => ({
-    type: 'error' as ToastType,
+    type: 'error' as ToastVariant,
     title: 'ゲーム締切エラー',
     message: error,
   }),
 
   statusUpdateSuccess: (newStatus: string) => ({
-    type: 'success' as ToastType,
+    type: 'success' as ToastVariant,
     title: 'ステータス更新完了',
     message: `ゲームステータスが「${newStatus}」に変更されました`,
   }),
 
   validationError: (error: string) => ({
-    type: 'error' as ToastType,
+    type: 'error' as ToastVariant,
     title: '入力エラー',
     message: error,
   }),
 
   networkError: () => ({
-    type: 'error' as ToastType,
+    type: 'error' as ToastVariant,
     title: '通信エラー',
     message: 'サーバーとの通信に失敗しました。しばらく時間をおいてから再度お試しください。',
   }),

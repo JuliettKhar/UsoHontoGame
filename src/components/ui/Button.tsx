@@ -10,13 +10,16 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { forwardRef } from 'react';
 import { classNames } from '@/lib/design-system/classNames';
 
+export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'destructive' | 'ghost';
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Button content */
   children?: ReactNode;
   /** Visual variant following Apple HIG */
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive' | 'ghost';
+  variant?: ButtonVariant;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg';
+  size?: ButtonSize;
   /** Whether the button is in loading state */
   loading?: boolean;
   /** Whether to take full width of container */

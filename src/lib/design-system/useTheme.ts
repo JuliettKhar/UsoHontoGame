@@ -7,10 +7,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type {
-  ThemeMode,
-  EffectiveTheme,
-} from '@/specs/009-apple-hig-ui-redesign/contracts/design-system-types';
+import type { ThemeMode, EffectiveTheme } from '@/types/theme';
 
 const STORAGE_KEY = 'theme-preference';
 

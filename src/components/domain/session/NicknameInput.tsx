@@ -35,7 +35,8 @@ export function NicknameInput() {
           placeholder={t('form.presenter.nickname.example')}
           value={nickname}
           onChange={(e) => handleChange(e.target.value)}
-          error={error ?? undefined}
+          error={!!error}
+          errorMessage={error ?? undefined}
           disabled={isSubmitting}
           maxLength={50}
           required
