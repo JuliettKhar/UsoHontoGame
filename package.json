@@ -21,7 +21,12 @@
     "test:integration:watch": "start-server-and-test 'next dev' http://localhost:3000 'vitest tests/integration/api'",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug"
+    "test:e2e:debug": "playwright test --debug",
+    "seed": "tsx prisma/seed.ts",
+    "seed:my": "tsx prisma/seed-my-games.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
@@ -53,6 +58,7 @@
     "prisma": "^6.19.0",
     "start-server-and-test": "^2.1.2",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.0.7"
   }
