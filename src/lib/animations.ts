@@ -104,9 +104,11 @@ export const animationUtils = {
     duration: number = 1000
   ): Promise<void> => {
     return new Promise((resolve) => {
-      element.classList.add(className);
+      // Split space-separated classes and add them individually
+      const classes = className.split(' ').filter(c => c.trim());
+      element.classList.add(...classes);
       setTimeout(() => {
-        element.classList.remove(className);
+        element.classList.remove(...classes);
         resolve();
       }, duration);
     });
@@ -132,14 +134,16 @@ export const animationUtils = {
    */
   transitionStatusBadge: async (element: HTMLElement): Promise<void> => {
     // Fade out
-    element.classList.add(animations.statusTransition.fadeOut);
+    const fadeOutClasses = animations.statusTransition.fadeOut.split(' ').filter(c => c.trim());
+    element.classList.add(...fadeOutClasses);
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Update content happens here (external)
 
     // Fade in with highlight
-    element.classList.remove(animations.statusTransition.fadeOut);
-    element.classList.add(animations.statusTransition.fadeIn);
+    element.classList.remove(...fadeOutClasses);
+    const fadeInClasses = animations.statusTransition.fadeIn.split(' ').filter(c => c.trim());
+    element.classList.add(...fadeInClasses);
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Temporary highlight
@@ -194,15 +198,17 @@ export const animationSequences = {
     }
 
     // Fade out
-    badgeElement.classList.add(animations.statusTransition.fadeOut);
+    const fadeOutClasses = animations.statusTransition.fadeOut.split(' ').filter(c => c.trim());
+    badgeElement.classList.add(...fadeOutClasses);
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Update content
     onContentUpdate();
 
     // Fade in
-    badgeElement.classList.remove(animations.statusTransition.fadeOut);
-    badgeElement.classList.add(animations.statusTransition.fadeIn);
+    badgeElement.classList.remove(...fadeOutClasses);
+    const fadeInClasses = animations.statusTransition.fadeIn.split(' ').filter(c => c.trim());
+    badgeElement.classList.add(...fadeInClasses);
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Highlight

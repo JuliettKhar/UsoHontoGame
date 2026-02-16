@@ -119,12 +119,12 @@ describe('animationUtils', () => {
       await vi.runAllTimersAsync();
 
       expect(removeSpy).toHaveBeenCalledWith('animate-bounce-in');
-      expect(addSpy).toHaveBeenCalledWith(animations.statusTransition.highlight);
+      expect(addSpy).toHaveBeenCalledWith('transition-all', 'duration-1000', 'ring-4', 'ring-blue-300', 'ring-opacity-50');
 
       vi.advanceTimersByTime(2000);
       await promise;
 
-      expect(removeSpy).toHaveBeenCalledWith(animations.statusTransition.highlight);
+      expect(removeSpy).toHaveBeenCalledWith('transition-all', 'duration-1000', 'ring-4', 'ring-blue-300', 'ring-opacity-50');
     });
   });
 
@@ -146,25 +146,25 @@ describe('animationUtils', () => {
       const promise = animationUtils.transitionStatusBadge(mockElement);
 
       // Fade out
-      expect(addSpy).toHaveBeenCalledWith(animations.statusTransition.fadeOut);
+      expect(addSpy).toHaveBeenCalledWith('transition-opacity', 'duration-300', 'opacity-0');
 
       vi.advanceTimersByTime(300);
       await vi.runAllTimersAsync();
 
       // Fade in
-      expect(removeSpy).toHaveBeenCalledWith(animations.statusTransition.fadeOut);
-      expect(addSpy).toHaveBeenCalledWith(animations.statusTransition.fadeIn);
+      expect(removeSpy).toHaveBeenCalledWith('transition-opacity', 'duration-300', 'opacity-0');
+      expect(addSpy).toHaveBeenCalledWith('transition-opacity', 'duration-300', 'opacity-100');
 
       vi.advanceTimersByTime(300);
       await vi.runAllTimersAsync();
 
       // Highlight
-      expect(addSpy).toHaveBeenCalledWith(animations.statusTransition.highlight);
+      expect(addSpy).toHaveBeenCalledWith('transition-all', 'duration-1000', 'ring-4', 'ring-blue-300', 'ring-opacity-50');
 
       vi.advanceTimersByTime(2000);
       await promise;
 
-      expect(removeSpy).toHaveBeenCalledWith(animations.statusTransition.highlight);
+      expect(removeSpy).toHaveBeenCalledWith('transition-all', 'duration-1000', 'ring-4', 'ring-blue-300', 'ring-opacity-50');
     });
   });
 
@@ -273,12 +273,12 @@ describe('animationSequences', () => {
 
       const promise = animationSequences.buttonSuccess(mockElement);
 
-      expect(addSpy).toHaveBeenCalledWith('scale-105 bg-green-600');
+      expect(addSpy).toHaveBeenCalledWith('scale-105', 'bg-green-600');
 
       vi.advanceTimersByTime(800);
       await promise;
 
-      expect(removeSpy).toHaveBeenCalledWith('scale-105 bg-green-600');
+      expect(removeSpy).toHaveBeenCalledWith('scale-105', 'bg-green-600');
     });
 
     it('should skip animation when motion is reduced', async () => {
@@ -332,7 +332,7 @@ describe('animationSequences', () => {
       const promise = animationSequences.statusBadgeUpdate(mockElement, onContentUpdate);
 
       // Fade out
-      expect(addSpy).toHaveBeenCalledWith(animations.statusTransition.fadeOut);
+      expect(addSpy).toHaveBeenCalledWith('transition-opacity', 'duration-300', 'opacity-0');
 
       vi.advanceTimersByTime(300);
       await vi.runAllTimersAsync();
@@ -341,8 +341,8 @@ describe('animationSequences', () => {
       expect(onContentUpdate).toHaveBeenCalledTimes(1);
 
       // Fade in
-      expect(removeSpy).toHaveBeenCalledWith(animations.statusTransition.fadeOut);
-      expect(addSpy).toHaveBeenCalledWith(animations.statusTransition.fadeIn);
+      expect(removeSpy).toHaveBeenCalledWith('transition-opacity', 'duration-300', 'opacity-0');
+      expect(addSpy).toHaveBeenCalledWith('transition-opacity', 'duration-300', 'opacity-100');
 
       vi.advanceTimersByTime(2300);
       await promise;
