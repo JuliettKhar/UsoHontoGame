@@ -140,6 +140,8 @@ async function main() {
   const statuses = ['準備中', '出題中', '締切'];
   const gamesPerStatus = Math.ceil(CONFIG.numberOfGames / statuses.length);
   let totalGames = 0;
+  let totalParticipations = 0;
+  let totalAnswers = 0;
 
   for (const status of statuses) {
     console.log(`📊 Creating ${gamesPerStatus} games with status: ${status}`);
@@ -147,7 +149,30 @@ async function main() {
     for (let i = 0; i < gamesPerStatus; i++) {
       const gameName = `${getRandomItem(GAME_NAMES)} #${totalGames + 1}`;
       const maxPlayers = Math.floor(Math.random() * 50) + 10; // 10-60 players
-      const currentPlayers = status === '準備中' ? 0 : Math.floor(Math.random() * maxPlayers);
+
+      // Generate realistic participation rates for dashboard display
+      let currentPlayers = 0;
+      if (status !== '準備中') {
+        // Create variety: half full, rest distributed
+        const rand = Math.random();
+        let participationRate: number;
+
+        if (rand < 0.5) {
+          // 50% chance: Full capacity (100%)
+          participationRate = 1.0;
+        } else if (rand < 0.7) {
+          // 20% chance: Low participation (10-30%)
+          participationRate = 0.1 + Math.random() * 0.2;
+        } else if (rand < 0.9) {
+          // 20% chance: Medium participation (30-60%)
+          participationRate = 0.3 + Math.random() * 0.3;
+        } else {
+          // 10% chance: High participation (60-90%)
+          participationRate = 0.6 + Math.random() * 0.3;
+        }
+
+        currentPlayers = Math.max(1, Math.floor(maxPlayers * participationRate));
+      }
 
       // Create game with specified session ID
       const game = await prisma.game.create({
@@ -161,6 +186,9 @@ async function main() {
         },
       });
 
+      // Store presenters and their episodes for answer generation
+      const presentersWithEpisodes: Array<{ presenterId: string; episodeIds: string[] }> = [];
+
       // Create presenters
       for (let j = 0; j < CONFIG.presentersPerGame; j++) {
         const presenterName = `${getRandomItem(PRESENTER_NAMES)}${j + 1}`;
@@ -173,15 +201,62 @@ async function main() {
         });
 
         // Create episodes
+        const episodeIds: string[] = [];
         const lieIndex = Math.floor(Math.random() * CONFIG.episodesPerPresenter);
         for (let k = 0; k < CONFIG.episodesPerPresenter; k++) {
-          await prisma.episode.create({
+          const episode = await prisma.episode.create({
             data: {
               presenterId: presenter.id,
               text: generateEpisodeText(),
               isLie: k === lieIndex,
             },
           });
+          episodeIds.push(episode.id);
+        }
+
+        presentersWithEpisodes.push({
+          presenterId: presenter.id,
+          episodeIds,
+        });
+      }
+
+      // Create participations and answers for non-準備中 games
+      // This ensures currentPlayers matches actual participant count
+      // In real app flow, Participation and Answer are created together (on answer submission)
+      if (status !== '準備中' && currentPlayers > 0) {
+        for (let p = 0; p < currentPlayers; p++) {
+          const participantSessionId = `seed-participant-${game.id}-${p}`;
+          const nickname = `参加者${p + 1}`;
+
+          // Create participation
+          await prisma.participation.create({
+            data: {
+              sessionId: participantSessionId,
+              gameId: game.id,
+              nickname,
+              joinedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last 7 days
+            },
+          });
+          totalParticipations++;
+
+          // Always create answer (matches real app behavior)
+          // Build selections: one episode per presenter
+          const selections: Record<string, string> = {};
+          for (const { presenterId, episodeIds } of presentersWithEpisodes) {
+            const randomEpisodeId = episodeIds[Math.floor(Math.random() * episodeIds.length)];
+            selections[presenterId] = randomEpisodeId;
+          }
+
+          await prisma.answer.create({
+            data: {
+              sessionId: participantSessionId,
+              gameId: game.id,
+              nickname,
+              selections,
+              createdAt: new Date(Date.now() - Math.random() * 6 * 24 * 60 * 60 * 1000), // Random date within last 6 days
+            },
+          });
+          totalAnswers++;
         }
       }
 
@@ -196,6 +271,8 @@ async function main() {
   console.log(
     `📈 Created ${totalGames * CONFIG.presentersPerGame * CONFIG.episodesPerPresenter} episodes`
   );
+  console.log(`📈 Created ${totalParticipations} participations`);
+  console.log(`📈 Created ${totalAnswers} answers`);
   console.log('');
   console.log('🎮 You can now see these games at: http://localhost:3000/games');
 }
