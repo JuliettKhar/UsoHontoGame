@@ -33,7 +33,7 @@ export const ja: Translations = {
     settings: '設定',
     language: '言語',
     dashboard: 'ダッシュボード',
-    activeGames: '出題中のゲーム',
+    activeGames: '出題中/締切のゲーム',
   },
 
   game: {
@@ -64,7 +64,7 @@ export const ja: Translations = {
     gameNotFound: 'ゲームが見つかりません',
     startGame: 'ゲーム開始',
     endGame: 'ゲーム終了',
-    activeGames: '出題中のゲーム',
+    activeGames: '出題中/締切のゲーム',
     gameManagement: 'ゲーム管理',
     gameManagementDescription: '作成したゲームの一覧を確認・管理できます',
     newGame: '新しいゲームを作成',
