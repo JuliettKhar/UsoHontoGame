@@ -2,22 +2,16 @@
 // Feature: 002-game-preparation
 // Server Component that fetches data and delegates to GameListPage component
 
-import { redirect } from 'next/navigation';
 import { getGamesAction } from '@/app/actions/game';
+import { requireSessionAction } from '@/app/actions/session';
 import { GameListPage, GameListPageError } from '@/components/pages/GameListPage';
-import { SessionServiceContainer } from '@/server/infrastructure/di/SessionServiceContainer';
 
 /**
  * Next.js App Router page for /games
  * Handles session check, data fetching, and error states
  */
 export default async function Page() {
-  // Check session
-  const sessionService = SessionServiceContainer.getSessionService();
-  const sessionId = await sessionService.getCurrentSessionId();
-  if (!sessionId) {
-    redirect('/');
-  }
+  await requireSessionAction();
 
   // Fetch games
   const result = await getGamesAction();

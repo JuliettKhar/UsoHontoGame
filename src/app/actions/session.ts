@@ -5,6 +5,7 @@
 // Provides server-side functions for session operations
 // Refactored to use SessionApplicationService
 
+import { redirect } from 'next/navigation';
 import { SessionApplicationService } from '@/server/application/services/SessionApplicationService';
 
 // SessionApplicationService インスタンス（モジュールレベルSingleton）
@@ -61,4 +62,17 @@ export async function setNicknameAction(nickname: string): Promise<SetNicknameRe
 export async function validateSessionAction(): Promise<ValidateSessionResult> {
   // Application Service呼び出し
   return await sessionService.validateSession();
+}
+
+/**
+ * Requires current session for protected pages/API.
+ * Redirects to / if no valid session (presentation layer does not depend on infrastructure).
+ * @returns Session ID when valid
+ */
+export async function requireSessionAction(): Promise<{ sessionId: string }> {
+  const result = await sessionService.validateSession();
+  if (!result.valid || !result.sessionId) {
+    redirect('/');
+  }
+  return { sessionId: result.sessionId };
 }

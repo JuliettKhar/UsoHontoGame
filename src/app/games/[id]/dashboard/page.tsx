@@ -4,9 +4,8 @@
 // Displays real-time response submission status for active/closed games
 
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { requireSessionAction } from '@/app/actions/session';
 import { ResponseStatusPage, ResponseStatusPageError } from '@/components/pages/ResponseStatusPage';
-import { SessionServiceContainer } from '@/server/infrastructure/di/SessionServiceContainer';
 
 interface PageProps {
   params: Promise<{
@@ -15,13 +14,7 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  // Session verification
-  const sessionService = SessionServiceContainer.getSessionService();
-  const sessionId = await sessionService.getCurrentSessionId();
-
-  if (!sessionId) {
-    redirect('/');
-  }
+  await requireSessionAction();
 
   // Extract gameId from params
   const { id: gameId } = await params;
