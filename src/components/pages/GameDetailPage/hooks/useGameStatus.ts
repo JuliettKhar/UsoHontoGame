@@ -85,12 +85,18 @@ export function useGameStatus({
           onSuccess?.(targetStatus);
           return;
         } else {
-          throw new Error(
+          // Server-side error (validation, business logic) - do not retry
+          const errorMessage =
             result.errors?._form?.[0] ||
-              (operation === 'start' ? t('action.game.start.error') : t('action.game.close.error'))
-          );
+            (operation === 'start' ? t('action.game.start.error') : t('action.game.close.error'));
+          setCurrentStatus(previousStatus); // Rollback optimistic update
+          setIsRetrying(false);
+          setRetryCount(0);
+          onError?.(errorMessage);
+          return;
         }
       } catch (error) {
+        // Network error or unexpected error - retry if enabled
         const errorMessage =
           error instanceof Error
             ? error.message

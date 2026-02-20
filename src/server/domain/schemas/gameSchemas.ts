@@ -140,7 +140,23 @@ export const ValidateTransitionSchema = z.object({
   }),
 });
 
+// Server Action Schemas (Application Service refactoring - simplified validation)
+// These schemas validate only what Server Actions need to check
+// Session validation is handled by Application Service layer
+export const StartGameActionSchema = z.object({
+  gameId: GameIdSchema,
+});
+
+export const CloseGameActionSchema = z.object({
+  gameId: GameIdSchema,
+  confirmed: z.boolean().refine((val) => val === true, {
+    message: 'REQUIRED',
+  }),
+});
+
 // Type Inference for Status Transitions
 export type StartGameInput = z.infer<typeof StartGameSchema>;
 export type CloseGameInput = z.infer<typeof CloseGameSchema>;
 export type ValidateTransitionInput = z.infer<typeof ValidateTransitionSchema>;
+export type StartGameActionInput = z.infer<typeof StartGameActionSchema>;
+export type CloseGameActionInput = z.infer<typeof CloseGameActionSchema>;

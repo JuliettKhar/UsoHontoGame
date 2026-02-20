@@ -4,11 +4,9 @@
 
 'use client';
 
-import { CloseGameButton } from '@/components/domain/game/CloseGameButton';
 import { DeleteGameButton } from '@/components/domain/game/DeleteGameButton';
 import { GameForm } from '@/components/domain/game/GameForm';
 import { GameStatusBadge } from '@/components/domain/game/GameStatusBadge';
-import { StatusTransitionButton } from '@/components/domain/game/StatusTransitionButton';
 import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
 import { Header } from '@/components/ui/Header';
 import { ToastContainer } from '@/components/ui/Toast';
@@ -29,7 +27,7 @@ export function GameDetailPage({ game, currentSessionId }: GameDetailPageProps) 
   const { toasts, showSuccess, showError, removeToast } = useToast();
 
   // Status management hook
-  const { currentStatus, isLoading } = useGameStatus({
+  const { currentStatus, isLoading, startGame, closeGame } = useGameStatus({
     gameId: game.id,
     initialStatus: game.status as GameStatusValue,
     onSuccess: (newStatus) => {
@@ -68,34 +66,79 @@ export function GameDetailPage({ game, currentSessionId }: GameDetailPageProps) 
               </div>
               <div className="flex flex-col items-end space-y-3">
                 <GameStatusBadge status={currentStatus} animated={true} />
-                {/* Show StatusTransitionButton for 準備中 (to start game) */}
+                {/* Show start button for 準備中 (to start game) */}
                 {currentStatus === '準備中' && (
-                  <StatusTransitionButton
-                    gameId={game.id}
-                    currentStatus={currentStatus}
-                    onSuccess={(newStatus) => {
-                      const message =
-                        newStatus === '出題中'
-                          ? t('status.messages.gameStarted')
-                          : t('status.messages.gameClosed');
-                      showSuccess(message, t('messages.success'));
-                    }}
-                    onError={(error) => {
-                      showError(error, t('status.labels.error'));
-                    }}
-                  />
+                  <button
+                    type="button"
+                    onClick={startGame}
+                    disabled={isLoading}
+                    className="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg
+                          className="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        {t('status.labels.starting')}
+                      </>
+                    ) : (
+                      t('status.transition.preparing.toActive')
+                    )}
+                  </button>
                 )}
-                {/* Show CloseGameButton for 出題中 (to close game) - only for moderators */}
+                {/* Show close button for 出題中 (to close game) - only for moderators */}
                 {currentStatus === '出題中' && isModerator && (
-                  <CloseGameButton
-                    gameId={game.id}
-                    gameStatus={currentStatus as '準備中' | '出題中' | '締切'}
-                    onClosed={() => {
-                      showSuccess(t('status.messages.gameClosed'), t('status.labels.closed'));
-                      // Trigger page refresh or state update
-                      window.location.reload();
-                    }}
-                  />
+                  <button
+                    type="button"
+                    onClick={closeGame}
+                    disabled={isLoading}
+                    className="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg
+                          className="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        {t('status.labels.closing')}
+                      </>
+                    ) : (
+                      t('status.transition.active.toClosed')
+                    )}
+                  </button>
                 )}
               </div>
             </div>
