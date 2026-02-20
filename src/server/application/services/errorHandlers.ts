@@ -64,10 +64,11 @@ export async function mapDomainErrorToServiceError(
   // Generic Error: その他のエラー
   console.error('Unexpected error in Application Service:', error);
 
-  // i18n対応のエラーメッセージ取得
+  // i18n対応のエラーメッセージ取得（defaultMessageKey は action.*.error 等の TranslationKey を想定）
   const { t } = await import('@/lib/i18n/server');
+  const key = defaultMessageKey as Parameters<typeof t>[0];
   return {
     success: false,
-    errors: { _form: [await t(defaultMessageKey)] },
+    errors: { _form: [await t(key)] },
   };
 }

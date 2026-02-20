@@ -2,13 +2,14 @@
 // Translates Zod validation error codes to i18n messages
 
 import { t } from './server';
+import type { TranslationKey } from './types';
 import type { ZodError } from 'zod';
 
 /**
  * Error code to translation key mapping
  * Maps Zod error codes (e.g., 'NICKNAME_EMPTY') to i18n translation keys (e.g., 'validation.nickname.empty')
  */
-const ERROR_CODE_TO_KEY: Record<string, string> = {
+const ERROR_CODE_TO_KEY: Record<string, TranslationKey> = {
   // Common
   REQUIRED: 'validation.required',
   INVALID: 'validation.invalid',
@@ -45,15 +46,14 @@ export async function translateZodError(
   const translatedErrors: Record<string, string[]> = {};
 
   for (const [field, messages] of Object.entries(fieldErrors)) {
-    if (messages) {
+    const list = Array.isArray(messages) ? messages : [];
+    if (list.length > 0) {
       translatedErrors[field] = await Promise.all(
-        messages.map(async (message) => {
-          // If message is an error code, translate it
+        list.map(async (message: string) => {
           const translationKey = ERROR_CODE_TO_KEY[message];
-          if (translationKey) {
+          if (translationKey !== undefined) {
             return await t(translationKey);
           }
-          // Otherwise, return the message as-is (for non-error-code messages)
           return message;
         })
       );

@@ -196,6 +196,8 @@ export interface ErrorTranslations {
   forbidden: string;
   validationFailed: string;
   unexpectedError: string;
+  nicknameUpdateFailed: string;
+  gameClosed: string;
   errorOccurred: string;
   responseStatusFetchError: string;
 }
