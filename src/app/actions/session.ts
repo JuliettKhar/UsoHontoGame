@@ -1,18 +1,14 @@
 'use server';
 
 // Server Actions for session management
+// Server Actions リファクタリング - Phase 5
 // Provides server-side functions for session operations
+// Refactored to use SessionApplicationService
 
-import { t } from '@/lib/i18n/server';
-import { CreateSession } from '@/server/application/use-cases/session/CreateSession';
-import { SetNickname } from '@/server/application/use-cases/session/SetNickname';
-import { ValidateSession } from '@/server/application/use-cases/session/ValidateSession';
-import { EmptyNicknameError, NicknameTooLongError } from '@/server/domain/value-objects/Nickname';
-import { SessionServiceContainer } from '@/server/infrastructure/di/SessionServiceContainer';
-import { CookieSessionRepository } from '@/server/infrastructure/repositories/CookieSessionRepository';
+import { SessionApplicationService } from '@/server/application/services/SessionApplicationService';
 
-// Create singleton repository instance
-const sessionRepository = new CookieSessionRepository();
+// SessionApplicationService インスタンス（モジュールレベルSingleton）
+const sessionService = new SessionApplicationService();
 
 /**
  * Result type for createSessionAction
@@ -44,23 +40,8 @@ export type ValidateSessionResult = {
  * @returns Session ID and success status
  */
 export async function createSessionAction(): Promise<CreateSessionResult> {
-  try {
-    const useCase = new CreateSession(sessionRepository);
-    const session = await useCase.execute();
-
-    return {
-      success: true,
-      sessionId: session.sessionId,
-    };
-  } catch {
-    return {
-      success: false,
-      error: {
-        code: 'SESSION_CREATION_FAILED',
-        message: 'Failed to create session',
-      },
-    };
-  }
+  // Application Service呼び出し
+  return await sessionService.createSession();
 }
 
 /**
@@ -69,57 +50,8 @@ export async function createSessionAction(): Promise<CreateSessionResult> {
  * @returns Success status and nickname
  */
 export async function setNicknameAction(nickname: string): Promise<SetNicknameResult> {
-  try {
-    const createSessionUseCase = new CreateSession(sessionRepository);
-    const session = await createSessionUseCase.execute();
-
-    // Execute use case
-    const useCase = new SetNickname(sessionRepository);
-    const result = await useCase.execute(session.sessionId, nickname);
-
-    if (!result) {
-      return {
-        success: false,
-        error: {
-          code: 'NICKNAME_UPDATE_FAILED',
-          message: await t('errors.nicknameUpdateFailed'),
-        },
-      };
-    }
-
-    return {
-      success: true,
-      nickname: result.nickname ?? '',
-    };
-  } catch (error) {
-    if (error instanceof EmptyNicknameError) {
-      return {
-        success: false,
-        error: {
-          code: 'EMPTY_NICKNAME',
-          message: await t('validation.nickname.empty'),
-        },
-      };
-    }
-
-    if (error instanceof NicknameTooLongError) {
-      return {
-        success: false,
-        error: {
-          code: 'NICKNAME_TOO_LONG',
-          message: await t('validation.nickname.tooLong'),
-        },
-      };
-    }
-
-    return {
-      success: false,
-      error: {
-        code: 'NICKNAME_UPDATE_FAILED',
-        message: await t('errors.nicknameUpdateFailed'),
-      },
-    };
-  }
+  // Application Service呼び出し
+  return await sessionService.setNickname(nickname);
 }
 
 /**
@@ -127,45 +59,6 @@ export async function setNicknameAction(nickname: string): Promise<SetNicknameRe
  * @returns Session validity status and data
  */
 export async function validateSessionAction(): Promise<ValidateSessionResult> {
-  try {
-    // Get session service
-    const sessionService = SessionServiceContainer.getSessionService();
-    const sessionId = await sessionService.getCurrentSessionId();
-
-    if (!sessionId) {
-      return {
-        valid: false,
-        sessionId: null,
-        nickname: null,
-        hasNickname: false,
-      };
-    }
-
-    // Validate session
-    const useCase = new ValidateSession(sessionRepository);
-    const session = await useCase.execute(sessionId);
-
-    if (!session) {
-      return {
-        valid: false,
-        sessionId: null,
-        nickname: null,
-        hasNickname: false,
-      };
-    }
-
-    return {
-      valid: true,
-      sessionId: session.sessionId,
-      nickname: session.nickname,
-      hasNickname: session.nickname !== null,
-    };
-  } catch {
-    return {
-      valid: false,
-      sessionId: null,
-      nickname: null,
-      hasNickname: false,
-    };
-  }
+  // Application Service呼び出し
+  return await sessionService.validateSession();
 }
