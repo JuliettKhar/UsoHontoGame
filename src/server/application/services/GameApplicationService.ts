@@ -10,12 +10,12 @@ import { CreateGame } from '@/server/application/use-cases/games/CreateGame';
 import { UpdateGameSettings } from '@/server/application/use-cases/games/UpdateGameSettings';
 import { DeleteGame } from '@/server/application/use-cases/games/DeleteGame';
 import { GetActiveGames } from '@/server/application/use-cases/games/GetActiveGames';
+import { GetGameDetail } from '@/server/application/use-cases/games/GetGameDetail';
 import { GetGamesByCreator } from '@/server/application/use-cases/games/GetGamesByCreator';
 import { StartAcceptingResponses } from '@/server/application/use-cases/games/StartAcceptingResponses';
 import { CloseGame } from '@/server/application/use-cases/games/CloseGame';
 import { ValidateStatusTransition } from '@/server/application/use-cases/games/ValidateStatusTransition';
 import type { GetActiveGamesResult } from '@/server/application/use-cases/games/GetActiveGames';
-import { GameId } from '@/server/domain/value-objects/GameId';
 import {
   CreateGameSchema,
   UpdateGameSchema,
@@ -193,40 +193,13 @@ export class GameApplicationService {
       // 1. セッション取得
       const sessionId = await SessionServiceContainer.requireCurrentSession();
 
-      // 2. リポジトリから直接取得（認可チェック込み）
-      const game = await this.gameRepository.findById(new GameId(gameId));
-
-      if (!game) {
-        return {
-          success: false,
-          errors: { _form: ['ゲームが見つかりません'] },
-        };
-      }
-
-      // 3. 認可チェック - 作成者のみ閲覧可能
-      if (game.creatorId !== sessionId) {
-        return {
-          success: false,
-          errors: { _form: ['このゲームを閲覧する権限がありません'] },
-        };
-      }
-
-      // 4. DTOにマッピング
-      const gameDetailDto: GameDetailDto = {
-        id: game.id.toString(),
-        name: game.name,
-        status: game.status.toString(),
-        maxPlayers: game.maxPlayers,
-        currentPlayers: game.currentPlayers,
-        availableSlots: game.availableSlots,
-        creatorId: game.creatorId,
-        createdAt: game.createdAt,
-        updatedAt: game.updatedAt,
-      };
+      // 2. UseCase実行（認可チェック込み）
+      const useCase = new GetGameDetail(this.gameRepository);
+      const result = await useCase.execute({ gameId, requesterId: sessionId });
 
       return {
         success: true,
-        data: gameDetailDto,
+        data: result.game,
       };
     } catch (error) {
       return mapDomainErrorToServiceError(error, 'action.game.fetch.error');

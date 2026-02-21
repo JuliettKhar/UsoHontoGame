@@ -2,7 +2,7 @@
 // Feature: 002-game-preparation
 // Retrieve detailed information about a specific game
 
-import type { GameManagementDto } from '@/server/application/dto/GameDto';
+import type { GameDetailDto } from '@/server/application/dto/GameDetailDto';
 import { NotFoundError } from '@/server/domain/errors/NotFoundError';
 import type { IGameRepository } from '@/server/domain/repositories/IGameRepository';
 import { GameId } from '@/server/domain/value-objects/GameId';
@@ -21,8 +21,8 @@ export interface GetGameDetailInput {
  * GetGameDetail Output
  */
 export interface GetGameDetailOutput {
-  /** Game information with management details */
-  game: GameManagementDto;
+  /** Game information with full detail including creator and timestamps */
+  game: GameDetailDto;
 }
 
 /**
@@ -53,17 +53,17 @@ export class GetGameDetail {
       throw new Error('Unauthorized: You can only view games you created');
     }
 
-    // Get presenter count
-    const _presenters = await this.gameRepository.findPresentersByGameId(gameId);
-
-    // Map to GameManagementDto
-    const gameDto: GameManagementDto = {
+    // Map to GameDetailDto
+    const gameDto: GameDetailDto = {
       id: game.id.toString(),
       name: game.name,
       status: game.status.toString(),
       maxPlayers: game.maxPlayers,
       currentPlayers: game.currentPlayers,
-      availableSlots: game.maxPlayers - game.currentPlayers,
+      availableSlots: game.availableSlots,
+      creatorId: game.creatorId,
+      createdAt: game.createdAt,
+      updatedAt: game.updatedAt,
     };
 
     return { game: gameDto };
