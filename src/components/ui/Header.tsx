@@ -20,10 +20,18 @@ export function Header() {
     <header className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <div className="flex items-center gap-4">
-          <Link className="text-lg font-semibold text-gray-900" href="/games">
+          <Link
+            className="text-lg font-semibold text-gray-900"
+            href="/games"
+            style={{ minHeight: 'unset', minWidth: 'unset' }}
+          >
             ゲーム一覧
           </Link>
-          <Link className="text-lg font-semibold text-gray-900" href="/">
+          <Link
+            className="text-lg font-semibold text-gray-900"
+            href="/"
+            style={{ minHeight: 'unset', minWidth: 'unset' }}
+          >
             ホーム
           </Link>
         </div>
